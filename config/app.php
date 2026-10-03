@@ -20,7 +20,7 @@ return [
     | Application Environment
     |--------------------------------------------------------------------------
     |
-    | This value determines the "environment" your application is currently
+    | This value determines the environment your application is currently
     | running in. This may determine how you prefer to configure various
     | services the application utilizes. Set this in your ".env" file.
     |
@@ -74,7 +74,7 @@ return [
     |
     | The application locale determines the default locale that will be used
     | by Laravel's translation / localization methods. This option can be
-    | set to any locale for which you plan to have translation strings.
+    | set to any locale for which you plan to translate strings.
     |
     */
 
@@ -111,8 +111,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | These configuration options determine the driver used to determine and
-    | manage Laravel's "maintenance mode" status. The "cache" driver will
-    | allow maintenance mode to be controlled across multiple machines.
+    | manage the application's maintenance mode status.
     |
     | Supported drivers: "file", "cache"
     |

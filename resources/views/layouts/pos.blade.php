@@ -8,16 +8,15 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ filemtime(public_path('css/auth.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pos-login.css') }}?v={{ filemtime(public_path('css/pos-login.css')) }}">
 </head>
-<body class="auth-body">
+<body class="pos-body">
     @include('partials.icons')
+    @include('partials.pos-icons')
 
-    <main class="auth-page">
-        @yield('content')
-    </main>
+    @yield('content')
 
     @stack('scripts')
 </body>

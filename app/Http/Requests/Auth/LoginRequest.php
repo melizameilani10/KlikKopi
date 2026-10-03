@@ -1,30 +1,103 @@
 <?php
 
-return [
+namespace App\Http\Requests\Auth;
 
-    'login' => [
-        'status_label'    => 'Sistem Inventori & POS Terhubung • Online',
-        'title'           => 'Masuk Panel Administrator',
-        'subtitle'        => 'Sistem Manajemen Inventori, Katalog Menu & Konfigurasi QR Meja Perkoci Eatery.',
-        'role_label'      => 'Role: Master Administrator & Inventory Controller',
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
-        'email_label'     => 'ID Administrator / Email',
-        'email_hint'      => 'Kredensial SSO Aktif',
-        'password_label'  => 'Kata Sandi',
-        'forgot_label'    => 'Lupa Kredensial?',
-        'remember_label'  => 'Ingat Saya di perangkat terminal ini',
-        'submit_label'    => 'Masuk ke Panel Admin',
+class LoginRequest extends FormRequest
+{
+    private const MAX_ATTEMPTS = 5;
 
-        'info_title'      => 'Perkoci Admin Suite v2.4.0',
-        'info_text'       => 'Akses terbatas hanya untuk staf berwenang dan terdaftar.',
+    public function authorize(): bool
+    {
+        return true;
+    }
 
-        'footnote' => [
-            ['icon' => 'shield-check', 'text' => '256-Bit SSL Encrypted'],
-            ['icon' => 'database',     'text' => 'MySQL Database Connected'],
-        ],
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'login' => Str::lower(trim((string) $this->input('login'))),
+        ]);
+    }
 
-        // The 2FA boxes are UI-only for now (not verified server-side).
-        'show_two_factor' => (bool) env('LOGIN_SHOW_2FA', true),
-    ],
+    public function rules(): array
+    {
+        return [
+            'login'    => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string'],
+        ];
+    }
 
-];
+    public function messages(): array
+    {
+        return [
+            'login.required'    => 'ID pengguna atau email wajib diisi.',
+            'login.max'         => 'ID pengguna atau email maksimal 255 karakter.',
+            'password.required' => 'Kata sandi wajib diisi.',
+        ];
+    }
+
+    /**
+     * Login memakai email ATAU username, lalu memastikan akun punya role valid.
+     *
+     * @throws ValidationException
+     */
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
+
+        $login = (string) $this->input('login');
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $field     => $login,
+            'password' => $this->input('password'),
+        ];
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'auth' => 'ID pengguna/email atau kata sandi tidak sesuai. Silakan coba lagi.',
+            ]);
+        }
+
+        $role = strtolower((string) Auth::user()->role);
+
+        if (! array_key_exists($role, config('perkoci.roles'))) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'auth' => 'Akun ini belum memiliki peran yang valid. Hubungi administrator.',
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
+
+    private function ensureIsNotRateLimited(): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS)) {
+            return;
+        }
+
+        event(new Lockout($this));
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'auth' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
+        ]);
+    }
+
+    private function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower((string) $this->input('login')).'|'.$this->ip());
+    }
+}

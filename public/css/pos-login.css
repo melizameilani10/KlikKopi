@@ -1,0 +1,506 @@
+/* ==========================================================================
+   Perkoci POS — Login Kasir
+   Nilai warna disampel dari desain Stitch (halaman Kasir) + design system.
+   ========================================================================== */
+
+:root {
+    --pk-green: #195905;
+    --pk-green-hover: #1f6b09;
+    --pk-green-ring: rgba(25, 89, 5, 0.16);
+    --pk-brown: #3d2b1f;
+    --pk-khaki: #bdb76b;
+    --pk-amber: #c97c2c;
+    --pk-danger: #b3261e;
+
+    --pk-ink: #1c1c18;
+    --pk-text: #41493c;
+    --pk-muted: #6b6f64;
+    --pk-bg: #fcf9f2;
+    --pk-surface: #ffffff;
+    --pk-field: #f6f3ec;
+    --pk-field-2: #eeece6;
+    --pk-track: #f0eee7;
+    --pk-key: #f0eee7;
+    --pk-key-c: #ebe8e1;
+    --pk-badge: #edf3e1;
+    --pk-dot: #dcdad3;
+
+    --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+.pos-body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--pk-bg);
+    color: var(--pk-ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 3px solid rgba(25, 89, 5, 0.35); outline-offset: 2px; }
+
+/* ---------- Ikon ---------- */
+.icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.icon--sm { width: 16px; height: 16px; }
+
+/* ---------- Halaman & kartu ---------- */
+.pos-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 28px 24px;
+}
+
+.pos-card {
+    width: 100%;
+    max-width: 1080px;
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    overflow: hidden;
+    background: var(--pk-surface);
+    border-radius: 22px;
+    box-shadow: 0 30px 60px -28px rgba(61, 43, 31, 0.28), 0 2px 8px rgba(61, 43, 31, 0.06);
+    animation: pk-rise 0.5s ease-out both;
+}
+
+/* ---------- Area kiri: branding ---------- */
+.pos-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 36px;
+    text-align: center;
+    background: linear-gradient(155deg, #e7f3d9 0%, #f6f3ec 52%, #f6ebe1 100%);
+    border-right: 1px solid rgba(189, 183, 107, 0.35);
+}
+
+.pos-logo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 104px;
+    height: 104px;
+    margin-bottom: 6px;
+    background: var(--pk-surface);
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px rgba(189, 183, 107, 0.18), 0 12px 28px rgba(61, 43, 31, 0.14);
+}
+.pos-logo img { display: block; width: 72px; height: auto; }
+.pos-logo__dot {
+    position: absolute;
+    right: 4px;
+    bottom: 6px;
+    width: 18px;
+    height: 18px;
+    background: var(--pk-green);
+    border: 3px solid #fff;
+    border-radius: 50%;
+}
+
+.pos-eyebrow {
+    margin: 0;
+    color: var(--pk-brown);
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.pos-tagline {
+    max-width: 300px;
+    margin: 0 0 8px;
+    color: var(--pk-text);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.machine {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--pk-surface);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(61, 43, 31, 0.1);
+    text-align: left;
+}
+.machine__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--pk-track);
+    border-radius: 10px;
+    color: var(--pk-green);
+}
+.machine__info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.machine__label {
+    color: var(--pk-brown);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+.machine__name { color: var(--pk-ink); font-size: 14.5px; font-weight: 700; line-height: 1.3; }
+
+.badge-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 4px 10px;
+    background: var(--pk-badge);
+    border-radius: 999px;
+    color: var(--pk-green);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.badge-online__dot { width: 7px; height: 7px; background: var(--pk-green); border-radius: 50%; }
+
+/* ---------- Area kanan: form ---------- */
+.pos-main { min-width: 0; padding: 40px 48px 36px; }
+
+.pos-head { margin-bottom: 22px; }
+.pos-title {
+    margin: 0 0 6px;
+    color: var(--pk-ink);
+    font-family: var(--font-heading);
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+.pos-desc { margin: 0; color: var(--pk-text); font-size: 14px; line-height: 1.6; }
+
+/* ---------- Alert ---------- */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.alert .icon { margin-top: 1px; }
+.alert--error   { background: #fdefed; border-color: #f3c9c4; color: #7a1b15; }
+.alert--success { background: #e9f3e3; border-color: #cfe5c4; color: #1c4a08; }
+.alert--warning { background: #fbf1e4; border-color: #efd5b2; color: #7a4a14; }
+.alert--warning .icon { color: var(--pk-amber); }
+
+/* ---------- Field ---------- */
+.field { margin: 0 0 16px; }
+.field--plain { padding: 0; border: 0; min-width: 0; }
+.field__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.field__label {
+    display: block;
+    margin-bottom: 8px;
+    padding: 0;
+    color: var(--pk-ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+.field__head .field__label { margin-bottom: 0; }
+
+.input-wrap { position: relative; }
+.input {
+    display: block;
+    width: 100%;
+    height: 50px;
+    padding: 0 16px 0 46px;
+    background: var(--pk-field);
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    color: var(--pk-ink);
+    font-family: inherit;
+    font-size: 15px;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.input--has-action { padding-right: 52px; }
+.input::placeholder { color: #9ca3af; }
+.input:focus {
+    outline: none;
+    background: var(--pk-surface);
+    border-color: var(--pk-green);
+    box-shadow: 0 0 0 4px var(--pk-green-ring);
+}
+.input.is-invalid { background: #fff8f7; border-color: var(--pk-danger); }
+.input.is-invalid:focus { box-shadow: 0 0 0 4px rgba(179, 38, 30, 0.14); }
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: var(--pk-brown);
+    opacity: 0.65;
+    pointer-events: none;
+}
+.input-action {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+    color: var(--pk-brown);
+    cursor: pointer;
+}
+.input-action:hover { background: rgba(61, 43, 31, 0.07); }
+
+.field__error { margin: 8px 2px 0; color: var(--pk-danger); font-size: 13px; line-height: 1.4; }
+.field__error[hidden] { display: none; }
+
+/* ---------- Shift ---------- */
+.segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    background: var(--pk-track);
+    border-radius: 12px;
+}
+.segmented__item { position: relative; display: block; cursor: pointer; }
+.segmented__item input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.segmented__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    color: var(--pk-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.segmented__item input:checked + .segmented__label {
+    background: var(--pk-green);
+    color: #fff;
+    box-shadow: 0 6px 12px -6px rgba(25, 89, 5, 0.7);
+}
+.segmented__item input:focus-visible + .segmented__label {
+    outline: 3px solid rgba(25, 89, 5, 0.35);
+    outline-offset: 2px;
+}
+
+/* ---------- PIN ---------- */
+.pin-dots { display: flex; gap: 6px; }
+.pin-dots span {
+    width: 10px;
+    height: 10px;
+    background: var(--pk-dot);
+    border-radius: 50%;
+    transition: background-color 0.15s, transform 0.15s;
+}
+.pin-dots span.is-filled { background: var(--pk-green); transform: scale(1.1); }
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 10px;
+    background: #faf8f3;
+    border: 1px solid var(--pk-field-2);
+    border-radius: 16px;
+}
+.keypad__key {
+    display: grid;
+    place-items: center;
+    height: 46px;
+    background: var(--pk-key);
+    border: 0;
+    border-radius: 11px;
+    color: var(--pk-ink);
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.12s, transform 0.12s;
+}
+.keypad__key:hover { background: #e7e4dc; }
+.keypad__key:active { background: #dedbd2; transform: scale(0.97); }
+.keypad__key--clear { background: var(--pk-key-c); color: var(--pk-danger); font-size: 16px; }
+.keypad__key--back { background: var(--pk-key-c); }
+
+/* ---------- Tombol ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 52px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.15s, opacity 0.15s;
+}
+.btn--primary {
+    background: var(--pk-green);
+    color: #fff;
+    box-shadow: 0 12px 22px -10px rgba(25, 89, 5, 0.6);
+}
+.btn--primary:hover { background: var(--pk-green-hover); transform: translateY(-1px); }
+.btn--primary:active { transform: translateY(0); }
+
+.btn__spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pk-spin 0.7s linear infinite;
+}
+.btn.is-loading { cursor: progress; opacity: 0.9; pointer-events: none; }
+.btn.is-loading .btn__spinner { display: inline-block; }
+.btn.is-loading .btn__icon { display: none; }
+
+/* ---------- Footer ---------- */
+.pos-footer { text-align: center; color: var(--pk-muted); font-size: 12.5px; }
+.pos-footer p { margin: 0; }
+.pos-footer__link { color: var(--pk-green); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Kartu sederhana (placeholder dashboard) ---------- */
+.pos-simple {
+    width: 100%;
+    max-width: 460px;
+    padding: 36px 32px;
+    text-align: center;
+    background: linear-gradient(155deg, #e7f3d9 0%, #f6f3ec 52%, #f6ebe1 100%);
+    border-radius: 22px;
+    box-shadow: 0 30px 60px -28px rgba(61, 43, 31, 0.28);
+}
+.pos-simple .pos-logo { margin: 0 auto 14px; }
+.pos-simple .pos-desc { margin-bottom: 20px; }
+.pos-simple .alert { text-align: left; }
+
+/* ---------- Animasi ---------- */
+@keyframes pk-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes pk-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .btn__spinner { animation-duration: 1.6s !important; animation-iteration-count: infinite !important; }
+}
+
+/* ==========================================================================
+   Responsif
+   Monitor besar ≥1600 : kartu lebih lebar
+   Laptop 1024–1599    : dua area (default)
+   Laptop pendek       : spasi dipadatkan agar muat tanpa scroll
+   Tablet / mobile     : satu kartu bertumpuk seperti desain asli
+   ========================================================================== */
+
+@media (min-width: 1600px) {
+    .pos-card { max-width: 1200px; }
+    .pos-brand { padding: 52px 44px; }
+    .pos-main { padding: 48px 56px 42px; }
+    .pos-title { font-size: 34px; }
+    .keypad__key { height: 52px; font-size: 20px; }
+}
+
+@media (min-width: 1024px) and (max-height: 820px) {
+    .pos-page { gap: 12px; padding: 16px 24px; }
+    .pos-brand { padding: 28px; }
+    .pos-logo { width: 88px; height: 88px; }
+    .pos-logo img { width: 60px; }
+    .pos-main { padding: 26px 40px 22px; }
+    .pos-head { margin-bottom: 14px; }
+    .pos-title { font-size: 26px; }
+    .field { margin-bottom: 12px; }
+    .field__label { margin-bottom: 6px; }
+    .input { height: 46px; }
+    .segmented__label { min-height: 38px; }
+    .keypad { gap: 6px; padding: 8px; margin-bottom: 14px; }
+    .keypad__key { height: 38px; font-size: 16px; }
+    .btn { height: 48px; }
+}
+
+@media (max-width: 1023.98px) {
+    .pos-page { padding: 24px 20px; }
+    .pos-card { grid-template-columns: 1fr; max-width: 560px; }
+    .pos-brand {
+        padding: 28px 24px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(189, 183, 107, 0.35);
+    }
+    .pos-main { padding: 28px; }
+    .keypad__key { height: 54px; font-size: 20px; }
+}
+
+@media (max-width: 575.98px) {
+    .pos-page { justify-content: flex-start; gap: 14px; padding: 12px 12px 20px; }
+    .pos-card { border-radius: 18px; }
+    .pos-brand { padding: 22px 16px; }
+    .pos-logo { width: 84px; height: 84px; }
+    .pos-logo img { width: 58px; }
+    .pos-eyebrow { font-size: 18px; }
+    .machine { padding: 12px; }
+    .machine__name { font-size: 14px; }
+    .pos-main { padding: 22px 16px; }
+    .pos-title { font-size: 25px; }
+    .input { font-size: 16px; } /* 16px mencegah zoom otomatis di iOS */
+    .segmented__label { font-size: 12px; padding: 8px 6px; }
+}
+
+@media (max-width: 359.98px) {
+    .machine { flex-wrap: wrap; }
+    .badge-online { margin-left: 52px; }
+}

@@ -1,6 +1,5 @@
 /* ==========================================================================
    Perkoci — Auth pages (Login)
-   Values sampled from the Stitch design (Admin login screen).
    ========================================================================== */
 
 :root {
@@ -51,7 +50,6 @@ html { -webkit-text-size-adjust: 100%; }
     -webkit-font-smoothing: antialiased;
 }
 
-/* Soft background blobs */
 .auth-body::before,
 .auth-body::after {
     content: "";
@@ -206,6 +204,26 @@ html { -webkit-text-size-adjust: 100%; }
 }
 .role-badge .icon { color: var(--pk-green); }
 
+/* ---------- Label role (halaman login satu pintu) ---------- */
+.role-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+.role-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--pk-badge);
+    border-radius: 999px;
+    color: var(--pk-brown-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+.role-chip .icon { color: var(--pk-green); }
+
 /* ---------- Alerts ---------- */
 .alert {
     display: flex;
@@ -244,13 +262,11 @@ html { -webkit-text-size-adjust: 100%; }
     font-size: 14px;
     font-weight: 700;
 }
-.field__label--icon .icon { color: var(--pk-green); }
 .field__hint {
     color: var(--pk-muted);
     font-size: 12.5px;
     white-space: nowrap;
 }
-.field__hint--green { color: var(--pk-green); }
 .field__link {
     color: var(--pk-green);
     font-size: 12.5px;
@@ -320,8 +336,7 @@ html { -webkit-text-size-adjust: 100%; }
     background: #fff8f7;
     border-color: var(--pk-danger);
 }
-.input.is-invalid:focus,
-.otp__digit.is-invalid:focus {
+.input.is-invalid:focus {
     border-color: var(--pk-danger);
     box-shadow: 0 0 0 4px rgba(179, 38, 30, 0.14);
 }
@@ -333,34 +348,6 @@ html { -webkit-text-size-adjust: 100%; }
     line-height: 1.4;
 }
 .field__error[hidden] { display: none; }
-
-/* ---------- 2FA boxes ---------- */
-.otp {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-}
-.otp__digit {
-    width: 100%;
-    height: 48px;
-    padding: 0;
-    background: var(--pk-field);
-    border: 1.5px solid transparent;
-    border-radius: 12px;
-    color: var(--pk-brown-soft);
-    font-family: inherit;
-    font-size: 18px;
-    font-weight: 700;
-    text-align: center;
-    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
-}
-.otp__digit::placeholder { color: #a7a3b3; font-weight: 400; }
-.otp__digit:focus {
-    outline: none;
-    background: var(--pk-surface);
-    border-color: var(--pk-green);
-    box-shadow: 0 0 0 4px var(--pk-green-ring);
-}
 
 /* ---------- Checkbox ---------- */
 .check {
@@ -486,9 +473,6 @@ html { -webkit-text-size-adjust: 100%; }
 
 /* ==========================================================================
    Responsive
-   Desktop  ≥ 1024px : as designed
-   Tablet   576–1023 : same card, slightly tighter page padding
-   Mobile   ≤ 575px  : full-width card, smaller type & spacing
    ========================================================================== */
 
 @media (max-width: 1023.98px) {
@@ -510,12 +494,10 @@ html { -webkit-text-size-adjust: 100%; }
     .status-pill { font-size: 10.5px; padding: 6px 12px; text-align: left; }
     .auth-title { font-size: 25px; margin-top: 14px; }
     .auth-subtitle { font-size: 13.5px; }
-    .role-badge { font-size: 12px; text-align: left; }
+    .role-chip { font-size: 12px; }
 
     .auth-form { margin-top: 24px; }
-    .input { height: 50px; font-size: 16px; } /* 16px prevents iOS zoom on focus */
-    .otp { gap: 8px; }
-    .otp__digit { height: 46px; font-size: 17px; }
+    .input { height: 50px; font-size: 16px; } /* 16px mencegah zoom di iOS */
     .btn { height: 52px; font-size: 15.5px; }
 
     .field__head { flex-wrap: wrap; gap: 4px 12px; }
@@ -527,8 +509,6 @@ html { -webkit-text-size-adjust: 100%; }
 
 @media (max-width: 359.98px) {
     .auth-card__body { padding: 24px 16px 20px; }
-    .otp { gap: 6px; }
-    .otp__digit { height: 42px; }
     .auth-title { font-size: 22px; }
 }
 

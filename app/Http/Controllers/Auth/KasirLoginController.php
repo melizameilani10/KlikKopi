@@ -3,32 +3,33 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\KasirLoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class LoginController extends Controller
+class KasirLoginController extends Controller
 {
     public function create(): View
     {
-        return view('auth.login');
+        return view('kasir.login');
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(KasirLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        $role  = strtolower((string) Auth::user()->role);
-        $label = config("perkoci.roles.{$role}.label");
+        $shift = $request->validated('shift');
+        $request->session()->put('pos.shift', $shift);
 
-        // /dashboard meneruskan ke dashboard yang sesuai dengan role.
+        $label = config("perkoci.kasir.shifts.{$shift}.label");
+
         return redirect()
-            ->route('dashboard')
-            ->with('success', "Login berhasil sebagai {$label}. Selamat datang kembali!");
+            ->intended(route('kasir.dashboard'))
+            ->with('success', "Shift {$label} dibuka. Selamat bertugas!");
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -39,8 +40,7 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()
-            ->route('login')
-            ->with('success', 'Anda telah berhasil keluar.');
+            ->route('kasir.login')
+            ->with('success', 'Shift ditutup. Anda telah keluar dari terminal.');
     }
 }
-
