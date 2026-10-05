@@ -1,5 +1,13 @@
 <?php
-
+use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
+use App\Http\Controllers\Kasir\HistoryController as KasirHistoryController;
+use App\Http\Controllers\Kasir\OrderController as KasirOrderController;
+use App\Http\Controllers\Kasir\PaymentController as KasirPaymentController;
+use App\Http\Controllers\Kasir\SettingsController as KasirSettingsController;
+use App\Http\Controllers\Customer\CartController as OrderCartController;
+use App\Http\Controllers\Customer\CheckoutController as OrderCheckoutController;
+use App\Http\Controllers\Customer\MenuController as OrderMenuController;
+use App\Http\Controllers\Customer\WelcomeController as OrderWelcomeController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -38,5 +46,25 @@ Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')
 });
 
 Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
-    Route::view('/dashboard', 'dashboard-placeholder')->name('dashboard');
+    Route::get('/dashboard', KasirDashboardController::class)->name('dashboard');
+    Route::get('/orders', [KasirOrderController::class, 'index'])->name('orders.index');
+    Route::get('/payment/{code}', [KasirPaymentController::class, 'show'])->name('payment.show');
+    Route::get('/history', [KasirHistoryController::class, 'index'])->name('history.index');
+    Route::get('/settings', [KasirSettingsController::class, 'index'])->name('settings.index');
+});
+
+// Self-order customer (publik, tanpa login — konteks meja via QR ?meja= / ?qr=, cart di session).
+Route::prefix('order')->name('order.')->group(function () {
+    Route::get('/', [OrderWelcomeController::class, 'welcome'])->name('welcome');
+    Route::post('/waiter', [OrderWelcomeController::class, 'waiter'])->name('waiter');
+    Route::get('/menu', [OrderMenuController::class, 'menu'])->name('menu');
+    Route::get('/menu/{id}', [OrderMenuController::class, 'product'])->name('product');
+    Route::get('/cart', [OrderCartController::class, 'cart'])->name('cart');
+    Route::post('/cart/add', [OrderCartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update', [OrderCartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove', [OrderCartController::class, 'remove'])->name('cart.remove');
+    Route::get('/checkout', [OrderCheckoutController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [OrderCheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/status', [OrderCheckoutController::class, 'status'])->name('status');
+    Route::get('/receipt', [OrderCheckoutController::class, 'receipt'])->name('receipt');
 });
