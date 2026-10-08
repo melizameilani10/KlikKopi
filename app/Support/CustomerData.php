@@ -92,6 +92,15 @@ class CustomerData
             }
             $rows = Produk::where('status', 'aktif')->orderBy('id_produk')->get();
 
+            // Stok per produk (bila tercatat): jumlah <= 0 → otomatis Habis di katalog.
+            $stock = [];
+            try {
+                if (Schema::hasTable('stok')) {
+                    $stock = \DB::table('stok')->pluck('jumlah_stok', 'id_produk')->all();
+                }
+            } catch (\Throwable) {
+            }
+
             return $rows->map(fn ($p) => [
                 'id' => 'db-'.$p->id_produk,
                 'db_id' => $p->id_produk,
@@ -101,7 +110,7 @@ class CustomerData
                 'category' => $p->kategori ?: 'Signature Coffee',
                 'tags' => [],
                 'rating' => null,
-                'sold_out' => false,
+                'sold_out' => isset($stock[$p->id_produk]) && (int) $stock[$p->id_produk] <= 0,
                 'estimate' => '4–6 Menit',
                 'customizable' => false,
                 'options' => [],

@@ -1,4 +1,13 @@
 <?php
+use App\Http\Controllers\Admin\AuditController as AdminAuditController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MenuController as AdminMenuController;
+use App\Http\Controllers\Admin\StockController as AdminStockController;
+use App\Http\Controllers\Admin\TableController as AdminTableController;
+use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
+use App\Http\Controllers\Manager\FinanceController as ManagerFinanceController;
+use App\Http\Controllers\Manager\Pb1Controller as ManagerPb1Controller;
+use App\Http\Controllers\Manager\SalesController as ManagerSalesController;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
 use App\Http\Controllers\Kasir\HistoryController as KasirHistoryController;
 use App\Http\Controllers\Kasir\OrderController as KasirOrderController;
@@ -36,13 +45,39 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 });
 
-// Dashboard per role (sementara masih halaman placeholder).
+// Panel admin (menggantikan placeholder).
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/dashboard', 'dashboard-placeholder')->name('dashboard');
+    Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+
+    Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu.index');
+    Route::get('/menu/create', [AdminMenuController::class, 'create'])->name('menu.create');
+    Route::post('/menu', [AdminMenuController::class, 'store'])->name('menu.store');
+    Route::get('/menu/{id}/edit', [AdminMenuController::class, 'edit'])->name('menu.edit');
+    Route::put('/menu/{id}', [AdminMenuController::class, 'update'])->name('menu.update');
+    Route::patch('/menu/{id}/toggle', [AdminMenuController::class, 'toggle'])->name('menu.toggle');
+    Route::delete('/menu/{id}', [AdminMenuController::class, 'destroy'])->name('menu.destroy');
+
+    Route::get('/stocks', [AdminStockController::class, 'index'])->name('stocks.index');
+    Route::post('/stocks/restock', [AdminStockController::class, 'restock'])->name('stocks.restock');
+
+    Route::get('/tables', [AdminTableController::class, 'index'])->name('tables.index');
+    Route::post('/tables', [AdminTableController::class, 'store'])->name('tables.store');
+    Route::patch('/tables/{id}', [AdminTableController::class, 'updateStatus'])->name('tables.status');
+    Route::post('/tables/{id}/regenerate', [AdminTableController::class, 'regenerate'])->name('tables.regenerate');
+    Route::delete('/tables/{id}', [AdminTableController::class, 'destroy'])->name('tables.destroy');
+
+    Route::get('/audit', [AdminAuditController::class, 'index'])->name('audit.index');
 });
 
 Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
-    Route::view('/dashboard', 'dashboard-placeholder')->name('dashboard');
+    Route::get('/dashboard', ManagerDashboardController::class)->name('dashboard');
+    Route::get('/penjualan', [ManagerSalesController::class, 'index'])->name('sales.index');
+    Route::get('/penjualan/export', [ManagerSalesController::class, 'export'])->name('sales.export');
+    Route::get('/keuangan', [ManagerFinanceController::class, 'index'])->name('finance.index');
+    Route::post('/keuangan/keluar', [ManagerFinanceController::class, 'storeKeluar'])->name('finance.keluar.store');
+    Route::delete('/keuangan/keluar/{id}', [ManagerFinanceController::class, 'destroyKeluar'])->name('finance.keluar.destroy');
+    Route::get('/keuangan/export', [ManagerFinanceController::class, 'export'])->name('finance.export');
+    Route::get('/pb1', [ManagerPb1Controller::class, 'index'])->name('pb1.index');
 });
 
 Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {

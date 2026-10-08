@@ -12,5 +12,5 @@
         <p class="font-heading text-2xl font-semibold text-pk-khaki">Rp {{ number_format($promo['price'] ?? 0, 0, ',', '.') }}</p>
         <p class="text-sm text-white/50 line-through">Rp {{ number_format($promo['old_price'] ?? 0, 0, ',', '.') }}</p>
     </div>
-    <a href="{{ route('order.menu') }}" class="mt-3 block rounded-xl bg-pk-khaki px-4 py-2.5 text-center text-sm font-bold text-pk-brown">Lihat Menu Promo</a>
+    <button type="button" id="promo-cta" data-promo-items="kopi-susu-aren croissant-butter" class="mt-3 block w-full rounded-xl bg-pk-khaki px-4 py-2.5 text-center text-sm font-bold text-pk-brown">Lihat Menu Promo</button>
 </section>

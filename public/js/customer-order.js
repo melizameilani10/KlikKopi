@@ -76,30 +76,54 @@
     const search = $('#menu-search');
     const chips = $$('#category-chips [data-category]');
     let active = (chips.find((c) => c.getAttribute('aria-selected') === 'true') || {}).dataset?.category || 'Semua';
+    let promoOnly = null; // daftar product id promo saat CTA promo diklik
 
     function apply() {
       const q = (search ? search.value : '').trim().toLowerCase();
       let shown = 0;
       $$('[data-menu-item]', list).forEach((card) => {
+        const okPromo = !promoOnly || promoOnly.includes(card.dataset.productId);
         const okCat = active === 'Semua' || card.dataset.category === active;
         const okQ = !q || (card.dataset.name || '').includes(q);
-        const ok = okCat && okQ;
+        const ok = okPromo && okCat && okQ;
         card.style.display = ok ? '' : 'none';
         if (ok) shown++;
       });
       const empty = $('#menu-empty');
       if (empty) empty.classList.toggle('hidden', shown > 0);
       const count = $('#menu-count');
-      if (count) count.textContent = `${shown} menu`;
+      if (count) count.textContent = promoOnly ? `${shown} Menu Promo` : `${shown} Menu Tersedia`;
     }
+
+    // CTA promo → tampilkan hanya menu promo + scroll ke daftar
+    $('#promo-cta')?.addEventListener('click', () => {
+      promoOnly = ($('#promo-cta').dataset.promoItems || '').split(' ').filter(Boolean);
+      if (search) search.value = '';
+      active = 'Semua';
+      chips.forEach((c) => {
+        const on = c.dataset.category === 'Semua';
+        c.setAttribute('aria-selected', on ? 'true' : 'false');
+        c.classList.toggle('bg-pk-green', on);
+        c.classList.toggle('text-white', on);
+        c.classList.toggle('bg-white', !on);
+        c.classList.toggle('text-pk-brown-soft', !on);
+      });
+      apply();
+      $('#menu-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      toast('Menampilkan menu promo.', 'green');
+    });
 
     chips.forEach((chip) =>
       chip.addEventListener('click', () => {
         active = chip.dataset.category;
+        promoOnly = null;
         chips.forEach((c) => {
           const on = c === chip;
           c.setAttribute('aria-selected', on ? 'true' : 'false');
-          c.className = `shrink-0 rounded-full border px-4 py-2 text-xs font-bold ${on ? 'border-pk-green bg-pk-green text-white' : 'border-pk-brown/15 bg-white text-pk-brown'}`;
+          c.classList.toggle('bg-pk-green', on);
+          c.classList.toggle('text-white', on);
+          c.classList.toggle('bg-white', !on);
+          c.classList.toggle('text-pk-brown-soft', !on);
         });
         const url = new URL(window.location.href);
         active === 'Semua' ? url.searchParams.delete('kategori') : url.searchParams.set('kategori', active);
@@ -107,7 +131,7 @@
         apply();
       })
     );
-    search && search.addEventListener('input', apply);
+    search && search.addEventListener('input', () => { promoOnly = null; apply(); });
     apply();
   })();
 

@@ -6,10 +6,14 @@
 
     <x-customer.header :table="$table" title="Menu Katalog" />
 
-    <div class="px-4 pb-6 pt-4">
+    <div class="px-4 pb-6 pt-3">
+
+        {{-- STORE INFO --}}
+        <x-customer.store-info :table="$table" />
+
 
         {{-- SEARCH --}}
-        <label class="relative block">
+        <label class="relative mt-3 block">
 
             <span class="sr-only">
                 Cari menu
@@ -17,12 +21,12 @@
 
             {{-- Search icon --}}
             <span
-                class="pointer-events-none absolute left-3.5 top-1/2 z-10 flex h-4 w-4 -translate-y-1/2 items-center justify-center"
+                class="pointer-events-none absolute left-4 top-1/2 z-10 flex h-5 w-5 -translate-y-1/2 items-center justify-center"
                 aria-hidden="true"
             >
                 <x-pos.icon
                     name="search"
-                    class="!h-4 !w-4 shrink-0 text-pk-brown-soft"
+                    class="!h-5 !w-5 shrink-0 text-pk-brown-soft"
                 />
             </span>
 
@@ -32,8 +36,17 @@
                 value="{{ $search }}"
                 placeholder="Cari menu kopi, artisan tea, atau pastry…"
                 autocomplete="off"
-                class="h-11 w-full rounded-xl border border-pk-brown/15 bg-white py-2.5 pl-11 pr-4 text-sm text-pk-brown outline-none transition placeholder:text-pk-brown-soft/70 focus:border-pk-green focus:ring-2 focus:ring-pk-green/10"
+                class="h-14 w-full rounded-2xl border-0 bg-white py-3 pl-12 pr-16 text-sm text-pk-brown shadow-sm outline-none transition placeholder:text-pk-brown-soft/70 focus:ring-2 focus:ring-pk-green/20"
             />
+
+            {{-- Filter button --}}
+            <button
+                type="button"
+                aria-label="Filter menu"
+                class="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl bg-pk-brown/10 text-pk-brown-soft"
+            >
+                <x-customer.icon name="sliders" class="h-4 w-4" />
+            </button>
 
         </label>
 
@@ -41,7 +54,7 @@
         {{-- CATEGORY --}}
         <div
             id="category-chips"
-            class="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+            class="-mx-4 mt-4 flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide"
             role="tablist"
             aria-label="Kategori menu"
         >
@@ -53,10 +66,10 @@
                     role="tab"
                     data-category="{{ $c }}"
                     aria-selected="{{ $activeCategory === $c ? 'true' : 'false' }}"
-                    class="shrink-0 rounded-full border px-4 py-2 text-xs font-bold transition
+                    class="shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition
                     {{ $activeCategory === $c
-                        ? 'border-pk-green bg-pk-green text-white'
-                        : 'border-pk-brown/15 bg-white text-pk-brown hover:border-pk-green/40' }}"
+                        ? 'bg-pk-green text-white'
+                        : 'bg-white text-pk-brown-soft hover:text-pk-green' }}"
                 >
                     {{ $c }}
                 </button>
@@ -66,22 +79,37 @@
         </div>
 
 
-        {{-- PROMO --}}
-        <div class="mt-4">
+        {{-- PROMO / REKOMENDASI --}}
+        <div class="mt-6 flex items-center justify-between">
+
+            <h2 class="flex items-center gap-2 font-heading text-xl font-semibold text-pk-ink">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-pk-olive text-white">
+                    <x-customer.icon name="star" class="h-3.5 w-3.5" />
+                </span>
+                Rekomendasi Hari Ini
+            </h2>
+
+            <p class="text-xs font-medium text-pk-brown-soft">
+                Spesial Meja {{ $table['no'] ?? '' }}
+            </p>
+
+        </div>
+
+        <div class="mt-3">
             <x-customer.promo-card :promo="$promo" />
         </div>
 
 
         {{-- MENU HEADER --}}
-        <div class="mt-5 flex items-center justify-between">
+        <div class="mt-7 flex items-center justify-between">
 
-            <h2 class="font-heading text-lg font-semibold text-pk-brown">
+            <h2 class="font-heading text-xl font-semibold text-pk-ink">
                 Pilihan Terbaik
             </h2>
 
             <p
                 id="menu-count"
-                class="text-xs font-semibold text-pk-brown-soft"
+                class="text-xs font-medium text-pk-brown-soft"
             >
                 {{ count($products) }} Menu Tersedia
             </p>
@@ -102,10 +130,10 @@
             @empty
 
                 <div
-                    class="col-span-2 rounded-2xl border border-dashed border-pk-brown/25 bg-white p-8 text-center"
+                    class="col-span-2 rounded-3xl bg-white p-8 text-center shadow-sm"
                 >
 
-                    <p class="font-heading text-lg font-semibold text-pk-brown">
+                    <p class="font-heading text-lg font-semibold text-pk-ink">
                         Menu tidak ditemukan
                     </p>
 
@@ -123,7 +151,7 @@
         {{-- EMPTY STATE --}}
         <p
             id="menu-empty"
-            class="hidden rounded-2xl border border-dashed border-pk-brown/25 bg-white p-8 text-center text-sm font-semibold text-pk-brown-soft"
+            class="mt-3 hidden rounded-3xl bg-white p-8 text-center text-sm font-semibold text-pk-brown-soft shadow-sm"
         >
             Tidak ada menu yang cocok.
         </p>

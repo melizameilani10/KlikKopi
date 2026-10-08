@@ -44,6 +44,8 @@
     <style>
         html { -webkit-text-size-adjust: 100%; }
         body { text-rendering: optimizeLegibility; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
         @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
     </style>
 </head>
