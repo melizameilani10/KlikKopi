@@ -1,41 +1,78 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
-class LoginController extends Controller
+class AuthController extends Controller
 {
-    public function create(): View
+    /**
+     * POST /api/login
+     * Login memakai username ATAU email, lalu mengeluarkan token Sanctum.
+     */
+    public function login(Request $request): JsonResponse
     {
-        return view('auth.login');
+        $credentials = $request->validate([
+            'login'       => ['required', 'string', 'max:255'],
+            'password'    => ['required', 'string'],
+            'device_name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $login = trim($credentials['login']);
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $user = User::where($field, $login)->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'auth' => 'ID pengguna/email atau kata sandi tidak sesuai.',
+            ]);
+        }
+
+        $token = $user->createToken($credentials['device_name'] ?? 'api-token')->plainTextToken;
+
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Login berhasil.',
+            'token_type' => 'Bearer',
+            'token'      => $token,
+            'data'       => [
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'username' => $user->username,
+                'email'    => $user->email,
+                'role'     => $user->role,
+            ],
+        ]);
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    /**
+     * POST /api/logout
+     * Hapus token API yang sedang dipakai.
+     */
+    public function logout(Request $request): JsonResponse
     {
-        $request->authenticate();
+        $request->user()->currentAccessToken()->delete();
 
-        $request->session()->regenerate();
-
-        return redirect()
-            ->intended(route('dashboard'))
-            ->with('success', 'Login berhasil. Selamat datang kembali!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil.',
+        ]);
     }
 
-    public function destroy(Request $request): RedirectResponse
+    /**
+     * GET /api/me
+     * Tampilkan data pengguna yang sedang login via token.
+     */
+    public function me(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()
-            ->route('login')
-            ->with('success', 'Anda telah berhasil keluar.');
+        return response()->json([
+            'success' => true,
+            'data'    => $request->user(),
+        ]);
     }
 }
