@@ -18,6 +18,7 @@ use App\Http\Controllers\Customer\CheckoutController as OrderCheckoutController;
 use App\Http\Controllers\Customer\MenuController as OrderMenuController;
 use App\Http\Controllers\Customer\WelcomeController as OrderWelcomeController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\KasirLoginController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,10 @@ Route::middleware('guest')->group(function () {
 
     // Placeholder sampai fitur reset kata sandi dibuat.
     Route::get('/forgot-password', ForgotPasswordController::class)->name('password.request');
+
+    // Terminal login Kasir (PIN + shift).
+    Route::get('/kasir/login', [KasirLoginController::class, 'create'])->name('kasir.login');
+    Route::post('/kasir/login', [KasirLoginController::class, 'store'])->name('kasir.login.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -78,6 +83,9 @@ Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')
     Route::delete('/keuangan/keluar/{id}', [ManagerFinanceController::class, 'destroyKeluar'])->name('finance.keluar.destroy');
     Route::get('/keuangan/export', [ManagerFinanceController::class, 'export'])->name('finance.export');
     Route::get('/pb1', [ManagerPb1Controller::class, 'index'])->name('pb1.index');
+    Route::get('/promo', [ManagerSalesController::class, 'promo'])->name('promo.index');
+    Route::get('/promo/export', [ManagerSalesController::class, 'exportPromo'])->name('promo.export');
+    Route::get('/export', [ManagerSalesController::class, 'center'])->name('export.index');
 });
 
 Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
@@ -86,6 +94,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::get('/payment/{code}', [KasirPaymentController::class, 'show'])->name('payment.show');
     Route::get('/history', [KasirHistoryController::class, 'index'])->name('history.index');
     Route::get('/settings', [KasirSettingsController::class, 'index'])->name('settings.index');
+    Route::post('/logout', [KasirLoginController::class, 'destroy'])->name('logout');
 });
 
 // Self-order customer (publik, tanpa login — konteks meja via QR ?meja= / ?qr=, cart di session).

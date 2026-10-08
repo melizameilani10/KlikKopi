@@ -54,7 +54,7 @@
                     </tbody>
                 </table>
             </div>
-            <p class="mt-3 text-xs text-pk-brown-soft">{{ $stats['done'] }} selesai • 1 dibatalkan • Total {{ $stats['total'] }} pesanan hari ini</p>
+            <p class="mt-3 text-xs text-pk-brown-soft">{{ $stats['done'] }} selesai • {{ collect($rows)->where('status', 'Dibatalkan')->count() }} dibatalkan • Total {{ $stats['total'] }} pesanan hari ini</p>
         </section>
 
         <aside class="space-y-4" aria-label="Informasi shift">

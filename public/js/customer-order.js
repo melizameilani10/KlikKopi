@@ -288,7 +288,11 @@
   })();
 
   /* ---------- E-Receipt ---------- */
-  $('#btn-receipt-print')?.addEventListener('click', () => window.print());
+  $('#btn-receipt-print')?.addEventListener('click', () => {
+    document.body.classList.add('printing-receipt');
+    window.print();
+  });
+  window.addEventListener('afterprint', () => document.body.classList.remove('printing-receipt'));
   $('#btn-receipt-wa')?.addEventListener('click', (e) => {
     const code = e.currentTarget.dataset.code || '';
     const text = encodeURIComponent(`Halo PERKOCI EATERY, berikut e-receipt saya ${code}. Terima kasih!`);

@@ -7,6 +7,8 @@
         ['key' => 'sales', 'label' => 'Laporan Penjualan', 'icon' => 'receipt', 'route' => 'manager.sales.index'],
         ['key' => 'finance', 'label' => 'Laporan Keuangan', 'icon' => 'banknote', 'route' => 'manager.finance.index'],
         ['key' => 'pb1', 'label' => 'Audit PB1', 'icon' => 'list', 'route' => 'manager.pb1.index'],
+        ['key' => 'promo', 'label' => 'Laporan Promo', 'icon' => 'star', 'route' => 'manager.promo.index'],
+        ['key' => 'export', 'label' => 'Export & Cetak', 'icon' => 'printer', 'route' => 'manager.export.index'],
     ];
     $admin = ['name' => $manager['name'] ?? 'Manajer', 'code' => $manager['code'] ?? 'Manajer 01'];
 @endphp

@@ -23,9 +23,9 @@ class KasirLoginController extends Controller
         $request->session()->regenerate();
 
         $shift = $request->validated('shift');
+        $label = config("perkoci.kasir.shifts.{$shift}.label", ucfirst($shift));
         $request->session()->put('pos.shift', $shift);
-
-        $label = config("perkoci.kasir.shifts.{$shift}.label");
+        $request->session()->put('pos.shift_label', $label);
 
         return redirect()
             ->intended(route('kasir.dashboard'))

@@ -6,7 +6,7 @@
     <x-customer.header :table="$table" title="Detail Transaksi" :show-back="true" />
 
     <div class="px-4 pb-6 pt-4">
-        <section class="rounded-2xl border border-pk-brown/10 bg-white p-5 shadow-card" aria-label="E-Receipt">
+        <section id="receipt" class="rounded-2xl border border-pk-brown/10 bg-white p-5 shadow-card" aria-label="E-Receipt">
             <p class="text-center font-heading text-lg font-semibold text-pk-brown">PERKOCI EATERY</p>
             <p class="text-center text-[11px] font-bold uppercase tracking-[0.18em] text-pk-brown-soft">Bukti Transaksi Pembayaran Elektronik</p>
 

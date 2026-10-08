@@ -13,7 +13,12 @@ class EnsureUserHasRole
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        $role = strtolower((string) $request->user()?->role);
+        // Belum login (mis. sesi kedaluwarsa): arahkan ke login, bukan 403.
+        if (! $request->user()) {
+            return redirect()->route('login');
+        }
+
+        $role = strtolower((string) $request->user()->role);
 
         if (! in_array($role, $roles, true)) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');

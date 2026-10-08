@@ -47,6 +47,17 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
+        {{-- Cetak struk customer: hanya #receipt yang keluar di kertas. --}}
+        @media print {
+            body.printing-receipt header, body.printing-receipt nav,
+            body.printing-receipt #order-toasts, body.printing-receipt .no-print { display: none !important; }
+            body.printing-receipt * { visibility: hidden; }
+            body.printing-receipt #receipt, body.printing-receipt #receipt * { visibility: visible; }
+            body.printing-receipt #receipt {
+                position: fixed; left: 0; top: 0; width: 72mm; max-width: 100%;
+                margin: 0; box-shadow: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-pk-bg font-sans text-pk-ink antialiased">

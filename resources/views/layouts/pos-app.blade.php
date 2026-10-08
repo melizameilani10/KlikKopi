@@ -49,6 +49,16 @@
         [data-loading="true"] > .pk-spinner { display: inline-block; }
         @keyframes pk-spin { to { transform: rotate(360deg); } }
         @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
+        {{-- Cetak struk: hanya #receipt yang keluar di kertas (lebar thermal 72mm). --}}
+        @media print {
+            aside, header, nav, #pos-overlay, #pos-toasts, .no-print { display: none !important; }
+            body.printing-receipt * { visibility: hidden; }
+            body.printing-receipt #receipt, body.printing-receipt #receipt * { visibility: visible; }
+            body.printing-receipt #receipt {
+                position: fixed; left: 0; top: 0; width: 72mm; max-width: 100%;
+                margin: 0; box-shadow: none !important; border: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-pk-bg font-sans text-pk-ink antialiased">

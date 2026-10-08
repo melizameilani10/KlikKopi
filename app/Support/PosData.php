@@ -2,13 +2,15 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
 /**
- * Data contoh POS Kasir PERKOCI EATERY.
+ * Data POS Kasir PERKOCI EATERY.
  *
- * Single source of truth sementara untuk UI kasir.
- * TODO: ganti setiap method dengan query ke tabel
- * pesanan / detail_pesanan / pembayaran / meja / produk
- * saat modul backend transaksi sudah siap.
+ * DB-first: tiket aktif dibaca dari tabel pesanan (hasil checkout
+ * self-order customer). Bila belum ada baris aktif, fallback ke
+ * data contoh agar UI tetap bisa didemokan.
  *
  * Struktur ticket disengaja konsisten dengan brief:
  * #A-24 Budi Santoso (Meja 08, menunggu pembayaran, Rp 68.000)
@@ -22,8 +24,98 @@ class PosData
         return 'Rp '.number_format((float) $n, 0, ',', '.');
     }
 
-    /** Daftar tiket aktif (live ticket stream). */
+    /** Daftar tiket aktif: database dulu, dummy bila kosong. */
     public static function tickets(): array
+    {
+        $db = self::dbTickets();
+
+        return ! empty($db) ? $db : self::dummyTickets();
+    }
+
+    /** Tiket aktif dari tabel pesanan (status pending/diproses). */
+    public static function dbTickets(): array
+    {
+        try {
+            if (! Schema::hasTable('pesanan') || ! Schema::hasTable('detail_pesanan')) {
+                return [];
+            }
+
+            $rows = DB::table('pesanan')
+                ->leftJoin('meja', 'meja.id_meja', '=', 'pesanan.id_meja')
+                ->leftJoin('pembayaran', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+                ->leftJoin('metode_pembayaran', 'metode_pembayaran.id_metode', '=', 'pembayaran.id_metode')
+                ->whereIn('pesanan.status_pesanan', ['pending', 'diproses'])
+                ->orderBy('pesanan.tanggal_pesan')
+                ->select(
+                    'pesanan.*', 'meja.no_meja',
+                    'pembayaran.status_pembayaran', 'metode_pembayaran.nama_metode'
+                )
+                ->get();
+
+            if ($rows->isEmpty()) {
+                return [];
+            }
+
+            $details = DB::table('detail_pesanan')
+                ->leftJoin('produk', 'produk.id_produk', '=', 'detail_pesanan.id_produk')
+                ->whereIn('detail_pesanan.id_pesanan', $rows->pluck('id_pesanan'))
+                ->select('detail_pesanan.*', 'produk.nama_produk')
+                ->get()
+                ->groupBy('id_pesanan');
+
+            return $rows->map(function ($p) use ($details) {
+                $items = [];
+                $subtotal = 0;
+                foreach ($details[$p->id_pesanan] ?? [] as $d) {
+                    $note = implode(', ', array_filter([$d->topping, $d->gula, $d->es, $d->catatan]));
+                    $items[] = [
+                        'name' => $d->nama_produk ?? "Produk #{$d->id_produk}",
+                        'qty' => (int) $d->jumlah,
+                        'price' => (float) $d->harga,
+                        'note' => $note !== '' ? $note : null,
+                    ];
+                    $subtotal += (float) $d->subtotal;
+                }
+
+                $total = (float) $p->total_harga;
+                $service = $subtotal > 0 ? 2000 : 0;
+                $pb1 = max(0, $total - $subtotal - $service);
+                $paid = ($p->status_pembayaran ?? '') === 'berhasil';
+                $status = $p->status_pesanan === 'diproses' || $paid ? 'cooking' : 'waiting_payment';
+                $waktu = \Carbon\Carbon::parse($p->tanggal_pesan);
+
+                return [
+                    'code' => 'A-'.$p->nomor_antrean,
+                    'display_code' => '#A-'.$p->nomor_antrean,
+                    'customer' => 'Pelanggan Meja '.($p->no_meja ?? '-'),
+                    'phone' => '-',
+                    'table' => 'Meja '.($p->no_meja ?? '-'),
+                    'area' => AdminData::tableArea((string) ($p->no_meja ?? '')),
+                    'type' => 'dinein',
+                    'time' => $waktu->format('H:i'),
+                    'ago' => $waktu->locale('id')->diffForHumans(),
+                    'elapsed' => gmdate('H:i:s', max(0, time() - $waktu->timestamp)),
+                    'status' => $status,
+                    'status_label' => $status === 'cooking' ? 'Sedang Diracik' : 'Menunggu Pembayaran',
+                    'items_count' => array_sum(array_column($items, 'qty')),
+                    'items' => $items,
+                    'subtotal' => $subtotal,
+                    'pb1' => $pb1,
+                    'service' => $service,
+                    'total' => $total,
+                    'note' => null,
+                    'paid' => $paid,
+                    'paid_via' => $p->nama_metode ?? null,
+                    'id_pesanan' => $p->id_pesanan,
+                ];
+            })->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /** Daftar tiket contoh (fallback bila database kosong). */
+    public static function dummyTickets(): array
     {
         return [
             [
@@ -168,21 +260,69 @@ class PosData
         return null;
     }
 
-    /** Filter tab sesuai brief. */
+    /** Filter tab: hitung dari tiket aktif bila dari database. */
     public static function filters(): array
     {
+        $db = self::dbTickets();
+        if (empty($db)) {
+            return [
+                ['key' => 'all', 'label' => 'Semua', 'count' => 18],
+                ['key' => 'waiting_payment', 'label' => 'Menunggu Bayar', 'count' => 5],
+                ['key' => 'cooking', 'label' => 'Sedang Diracik', 'count' => 6],
+                ['key' => 'ready', 'label' => 'Siap Diantar', 'count' => 4],
+                ['key' => 'done', 'label' => 'Selesai Hari Ini', 'count' => null],
+                ['key' => 'cancelled', 'label' => 'Dibatalkan', 'count' => null],
+            ];
+        }
+
+        $byStatus = array_count_values(array_column($db, 'status'));
+
         return [
-            ['key' => 'all', 'label' => 'Semua', 'count' => 18],
-            ['key' => 'waiting_payment', 'label' => 'Menunggu Bayar', 'count' => 5],
-            ['key' => 'cooking', 'label' => 'Sedang Diracik', 'count' => 6],
-            ['key' => 'ready', 'label' => 'Siap Diantar', 'count' => 4],
+            ['key' => 'all', 'label' => 'Semua', 'count' => count($db)],
+            ['key' => 'waiting_payment', 'label' => 'Menunggu Bayar', 'count' => $byStatus['waiting_payment'] ?? 0],
+            ['key' => 'cooking', 'label' => 'Sedang Diracik', 'count' => $byStatus['cooking'] ?? 0],
+            ['key' => 'ready', 'label' => 'Siap Diantar', 'count' => $byStatus['ready'] ?? 0],
             ['key' => 'done', 'label' => 'Selesai Hari Ini', 'count' => null],
             ['key' => 'cancelled', 'label' => 'Dibatalkan', 'count' => null],
         ];
     }
 
+    /** Statistik dasbor: database dulu (hari ini), dummy bila kosong. */
     public static function stats(): array
     {
+        try {
+            if (Schema::hasTable('pesanan') && Schema::hasTable('transaksi')) {
+                $today = date('Y-m-d');
+                $waiting = (int) DB::table('pesanan')
+                    ->where('status_pesanan', 'pending')->whereDate('tanggal_pesan', $today)->count();
+                $cooking = (int) DB::table('pesanan')
+                    ->where('status_pesanan', 'diproses')->whereDate('tanggal_pesan', $today)->count();
+                $donePesanan = (int) DB::table('pesanan')
+                    ->where('status_pesanan', 'selesai')->whereDate('tanggal_pesan', $today)->count();
+                $trx = DB::table('transaksi')
+                    ->join('pembayaran', 'pembayaran.id_pembayaran', '=', 'transaksi.id_pembayaran')
+                    ->join('pesanan', 'pesanan.id_pesanan', '=', 'pembayaran.id_pesanan')
+                    ->where('transaksi.status_transaksi', 'berhasil')
+                    ->whereDate('transaksi.tanggal_transaksi', $today);
+                $doneTrx = (int) (clone $trx)->count();
+                $revenue = (float) (clone $trx)->sum('pesanan.total_harga');
+                $total = $waiting + $cooking + $donePesanan + $doneTrx;
+
+                if ($total > 0 || $revenue > 0) {
+                    return [
+                        'total' => $total,
+                        'waiting' => $waiting,
+                        'cooking' => $cooking,
+                        'done' => $donePesanan + $doneTrx,
+                        'revenue' => $revenue,
+                        'revenue_label' => self::rupiah($revenue),
+                        'orders_badge' => $waiting + $cooking,
+                    ];
+                }
+            }
+        } catch (\Throwable) {
+        }
+
         return [
             'total' => 84,
             'waiting' => 6,
@@ -194,8 +334,61 @@ class PosData
         ];
     }
 
+    /** Riwayat transaksi hari ini dari database; dummy bila kosong. */
     public static function history(): array
     {
+        try {
+            if (Schema::hasTable('transaksi') && Schema::hasTable('pesanan')) {
+                $today = date('Y-m-d');
+                $rows = DB::table('transaksi')
+                    ->join('pembayaran', 'pembayaran.id_pembayaran', '=', 'transaksi.id_pembayaran')
+                    ->join('pesanan', 'pesanan.id_pesanan', '=', 'pembayaran.id_pesanan')
+                    ->leftJoin('meja', 'meja.id_meja', '=', 'pesanan.id_meja')
+                    ->leftJoin('metode_pembayaran', 'metode_pembayaran.id_metode', '=', 'pembayaran.id_metode')
+                    ->where('transaksi.status_transaksi', 'berhasil')
+                    ->whereDate('transaksi.tanggal_transaksi', $today)
+                    ->orderBy('transaksi.tanggal_transaksi', 'desc')
+                    ->select(
+                        'transaksi.id_transaksi', 'transaksi.tanggal_transaksi',
+                        'pesanan.nomor_antrean', 'pesanan.total_harga',
+                        'meja.no_meja', 'metode_pembayaran.nama_metode'
+                    )
+                    ->get()
+                    ->map(fn ($r) => [
+                        'code' => '#A-'.$r->nomor_antrean,
+                        'customer' => 'Pelanggan Meja '.($r->no_meja ?? '-'),
+                        'table' => $r->no_meja ? 'Meja '.$r->no_meja : '-',
+                        'time' => \Carbon\Carbon::parse($r->tanggal_transaksi)->format('H:i'),
+                        'method' => $r->nama_metode ?? '-',
+                        'total' => (float) $r->total_harga,
+                        'status' => 'Selesai',
+                    ])->all();
+
+                $batal = DB::table('pesanan')
+                    ->leftJoin('meja', 'meja.id_meja', '=', 'pesanan.id_meja')
+                    ->where('pesanan.status_pesanan', 'batal')
+                    ->whereDate('pesanan.tanggal_pesan', $today)
+                    ->orderBy('pesanan.tanggal_pesan', 'desc')
+                    ->select('pesanan.nomor_antrean', 'pesanan.total_harga', 'pesanan.tanggal_pesan', 'meja.no_meja')
+                    ->get()
+                    ->map(fn ($r) => [
+                        'code' => '#A-'.$r->nomor_antrean,
+                        'customer' => 'Pelanggan Meja '.($r->no_meja ?? '-'),
+                        'table' => $r->no_meja ? 'Meja '.$r->no_meja : '-',
+                        'time' => \Carbon\Carbon::parse($r->tanggal_pesan)->format('H:i'),
+                        'method' => '-',
+                        'total' => (float) $r->total_harga,
+                        'status' => 'Dibatalkan',
+                    ])->all();
+
+                $merged = array_merge($rows, $batal);
+                if (! empty($merged)) {
+                    return $merged;
+                }
+            }
+        } catch (\Throwable) {
+        }
+
         return [
             ['code' => '#A-21', 'customer' => 'Andi Pratama', 'table' => 'Meja 01', 'time' => '13:58', 'method' => 'QRIS', 'total' => 86000, 'status' => 'Selesai'],
             ['code' => '#A-20', 'customer' => 'Maya Anggraini', 'table' => 'Meja 06', 'time' => '13:45', 'method' => 'Cash', 'total' => 68000, 'status' => 'Selesai'],
@@ -206,8 +399,35 @@ class PosData
         ];
     }
 
+    /** Rekap shift hari ini per metode dari database; dummy bila kosong. */
     public static function shiftRecap(): array
     {
+        try {
+            if (Schema::hasTable('transaksi') && Schema::hasTable('pesanan')) {
+                $byMethod = DB::table('transaksi')
+                    ->join('pembayaran', 'pembayaran.id_pembayaran', '=', 'transaksi.id_pembayaran')
+                    ->join('pesanan', 'pesanan.id_pesanan', '=', 'pembayaran.id_pesanan')
+                    ->leftJoin('metode_pembayaran', 'metode_pembayaran.id_metode', '=', 'pembayaran.id_metode')
+                    ->where('transaksi.status_transaksi', 'berhasil')
+                    ->whereDate('transaksi.tanggal_transaksi', date('Y-m-d'))
+                    ->select('metode_pembayaran.nama_metode', 'pesanan.total_harga')
+                    ->get();
+
+                if ($byMethod->isNotEmpty()) {
+                    $sum = fn (array $names) => (float) $byMethod
+                        ->filter(fn ($r) => in_array($r->nama_metode, $names, true))
+                        ->sum('total_harga');
+
+                    return [
+                        'cash' => $sum(['Cash']),
+                        'qris' => $sum(['QRIS', 'E-Wallet']),
+                        'debit' => $sum(['Debit']),
+                    ];
+                }
+            }
+        } catch (\Throwable) {
+        }
+
         return [
             'cash' => 1850000,
             'qris' => 2100000,

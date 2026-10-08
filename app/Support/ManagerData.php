@@ -197,6 +197,70 @@ class ManagerData
         }
     }
 
+    /* ---------- PROMO (item paket/bundling dari database asli) ---------- */
+
+    /** Produk yang dianggap item promo: kategori Paket/Promo atau nama mengandung 'paket'. */
+    public static function promoProducts(): array
+    {
+        try {
+            if (! Schema::hasTable('produk')) {
+                return [];
+            }
+
+            return DB::table('produk')
+                ->where('status', 'aktif')
+                ->where(function ($w) {
+                    $w->where('kategori', 'like', '%Paket%')
+                        ->orWhere('kategori', 'like', '%Promo%')
+                        ->orWhere('nama_produk', 'like', '%Paket%');
+                })
+                ->orderBy('nama_produk')
+                ->select('id_produk', 'nama_produk', 'kategori', 'harga')
+                ->get()
+                ->map(fn ($r) => [
+                    'id' => $r->id_produk, 'nama' => $r->nama_produk,
+                    'kategori' => $r->kategori, 'harga' => (float) $r->harga,
+                ])->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /** Kinerja item promo: qty & omzet dari detail_pesanan pada periode. */
+    public static function promoRows(string $dari, string $sampai): array
+    {
+        try {
+            if (! Schema::hasTable('detail_pesanan')) {
+                return [];
+            }
+            $items = self::promoProducts();
+            if (empty($items)) {
+                return [];
+            }
+            $ids = array_column($items, 'id');
+
+            $agg = DB::table('detail_pesanan')
+                ->join('pembayaran', 'pembayaran.id_pesanan', '=', 'detail_pesanan.id_pesanan')
+                ->join('transaksi', 'transaksi.id_pembayaran', '=', 'pembayaran.id_pembayaran')
+                ->where('transaksi.status_transaksi', 'berhasil')
+                ->whereDate('transaksi.tanggal_transaksi', '>=', $dari)
+                ->whereDate('transaksi.tanggal_transaksi', '<=', $sampai)
+                ->whereIn('detail_pesanan.id_produk', $ids)
+                ->select('detail_pesanan.id_produk', DB::raw('SUM(detail_pesanan.jumlah) as qty'), DB::raw('SUM(detail_pesanan.subtotal) as total'))
+                ->groupBy('detail_pesanan.id_produk')
+                ->get()
+                ->keyBy('id_produk');
+
+            return array_map(function ($p) use ($agg) {
+                $r = $agg[$p['id']] ?? null;
+
+                return $p + ['qty' => (int) ($r->qty ?? 0), 'total' => (float) ($r->total ?? 0)];
+            }, $items);
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
     /* ---------- PB1 (estimasi 10% dari total, dilabeli jelas) ---------- */
 
     public static function pb1(string $dari, string $sampai): array

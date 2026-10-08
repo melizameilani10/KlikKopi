@@ -306,8 +306,10 @@
     const printer = $('#btn-print');
     printer && printer.addEventListener('click', () => {
       toast('Mengirim ke Epson TM-T82…', 'amber');
+      document.body.classList.add('printing-receipt');
       setTimeout(() => window.print(), 500);
     });
+    window.addEventListener('afterprint', () => document.body.classList.remove('printing-receipt'));
     const wa = $('#btn-wa');
     wa && wa.addEventListener('click', () => {
       const text = encodeURIComponent(`Halo, struk PERKOCI #pembayaran ${fmtRp(total)}. Terima kasih!`);

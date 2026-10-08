@@ -23,8 +23,28 @@ class CustomerData
         return 'Rp '.number_format((float) $n, 0, ',', '.');
     }
 
+    /**
+     * Kategori dari database (produk aktif) agar chip filter selalu
+     * sesuai data asli. Fallback ke daftar desain bila DB kosong.
+     */
     public static function categories(): array
     {
+        try {
+            if (Schema::hasTable('produk')) {
+                $cats = Produk::query()
+                    ->where('status', 'aktif')
+                    ->whereNotNull('kategori')
+                    ->distinct()
+                    ->orderBy('kategori')
+                    ->pluck('kategori')
+                    ->all();
+                if (! empty($cats)) {
+                    return array_merge(['Semua'], $cats);
+                }
+            }
+        } catch (\Throwable) {
+        }
+
         return [
             'Semua',
             'Signature Coffee',
