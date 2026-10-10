@@ -8,9 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserHasRole
 {
-    /**
-     * Pemakaian di route: ->middleware('role:admin') atau 'role:admin,manager'
-     */
+    
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $role = strtolower((string) $request->user()?->role);

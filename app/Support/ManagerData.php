@@ -34,7 +34,7 @@ class ManagerData
             ->join('pesanan', 'pesanan.id_pesanan', '=', 'pembayaran.id_pesanan')
             ->leftJoin('meja', 'meja.id_meja', '=', 'pesanan.id_meja')
             ->leftJoin('metode_pembayaran', 'metode_pembayaran.id_metode', '=', 'pembayaran.id_metode')
-            ->leftJoin('users', 'users.id', '=', 'transaksi.id_user')
+            ->leftJoin('users', 'users.id_user', '=', 'transaksi.id_user')
             ->where('transaksi.status_transaksi', 'berhasil')
             ->whereDate('transaksi.tanggal_transaksi', '>=', $dari)
             ->whereDate('transaksi.tanggal_transaksi', '<=', $sampai)
@@ -151,7 +151,7 @@ class ManagerData
                 return ['total' => 0, 'rows' => []];
             }
             $rows = DB::table('pemasukan')
-                ->leftJoin('users', 'users.id', '=', 'pemasukan.id_user')
+                ->leftJoin('users', 'users.id_user', '=', 'pemasukan.id_user')
                 ->whereDate('pemasukan.tanggal', '>=', $dari)
                 ->whereDate('pemasukan.tanggal', '<=', $sampai)
                 ->orderBy('pemasukan.tanggal', 'desc')
@@ -177,7 +177,7 @@ class ManagerData
                 return ['total' => 0, 'rows' => []];
             }
             $rows = DB::table('pengeluaran')
-                ->leftJoin('users', 'users.id', '=', 'pengeluaran.id_user')
+                ->leftJoin('users', 'users.id_user', '=', 'pengeluaran.id_user')
                 ->whereDate('pengeluaran.tanggal', '>=', $dari)
                 ->whereDate('pengeluaran.tanggal', '<=', $sampai)
                 ->orderBy('pengeluaran.tanggal', 'desc')

@@ -19,4 +19,16 @@ class Produk extends Model
         'deskripsi',
         'status',
     ];
+
+    /** Catatan stok produk (satu baris per produk). */
+    public function stok()
+    {
+        return $this->hasOne(Stok::class, 'id_produk', 'id_produk');
+    }
+
+    /** Rincian pesanan yang memuat produk ini. */
+    public function detailPesanan()
+    {
+        return $this->hasMany(DetailPesanan::class, 'id_produk', 'id_produk');
+    }
 }

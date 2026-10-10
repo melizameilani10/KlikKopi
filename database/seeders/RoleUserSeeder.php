@@ -19,6 +19,7 @@ class RoleUserSeeder extends Seeder
             ['email' => 'admin@perkoci.test',   'name' => 'Admin Demo',   'username' => 'admin.demo',   'role' => 'admin',   'password' => 'password'],
             ['email' => 'manager@perkoci.test', 'name' => 'Manager Demo', 'username' => 'manager.demo', 'role' => 'manager', 'password' => 'password'],
             ['email' => 'kasir@perkoci.test',   'name' => 'Kasir Demo',   'username' => 'kasir.demo',   'role' => 'kasir',   'password' => 'password'],
+            ['email' => 'customer@perkoci.test', 'name' => 'Customer Demo', 'username' => 'customer.demo', 'role' => 'customer', 'password' => 'password'],
         ];
 
         $hasRole = Schema::hasColumn('users', 'role');

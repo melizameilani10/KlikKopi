@@ -2,10 +2,15 @@
 
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -25,12 +30,82 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (AuthenticationException $e, Request $request) {
-            if ($request->is('api/*') || $request->expectsJson()) {
+        $api = fn (Request $request): bool => $request->is('api/*') || $request->expectsJson();
+
+        $exceptions->render(function (AuthenticationException $e, Request $request) use ($api) {
+            if ($api($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthenticated.',
+                    'data'    => null,
                 ], 401);
+            }
+
+            return null;
+        });
+
+        // Validasi gagal -> 422 dengan format seragam.
+        $exceptions->render(function (ValidationException $e, Request $request) use ($api) {
+            if ($api($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'data'    => ['errors' => $e->errors()],
+                ], 422);
+            }
+
+            return null;
+        });
+
+        // Data tidak ditemukan -> 404.
+        $exceptions->render(function (ModelNotFoundException|NotFoundHttpException $e, Request $request) use ($api) {
+            if ($api($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Data tidak ditemukan.',
+                    'data'    => null,
+                ], 404);
+            }
+
+            return null;
+        });
+
+        // Akses ditolak (middleware role) -> 403.
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) use ($api) {
+            if ($api($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Anda tidak memiliki akses.',
+                    'data'    => null,
+                ], 403);
+            }
+
+            return null;
+        });
+
+        // Error HTTP lain (mis. abort(403, ...)) -> 403/4xx seragam.
+        $exceptions->render(function (HttpExceptionInterface $e, Request $request) use ($api) {
+            $status = $e->getStatusCode();
+
+            if ($api($request) && $status !== 404) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Permintaan tidak dapat diproses.',
+                    'data'    => null,
+                ], $status);
+            }
+
+            return null;
+        });
+
+        // Fallback 500 (hanya saat debug dimatikan agar stack trace tetap terlihat di lokal).
+        $exceptions->render(function (\Throwable $e, Request $request) use ($api) {
+            if ($api($request) && ! config('app.debug')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan pada server.',
+                    'data'    => null,
+                ], 500);
             }
 
             return null;

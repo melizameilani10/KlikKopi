@@ -38,7 +38,7 @@ class FinanceController extends Controller
         ]);
 
         DB::table('pengeluaran')->insert([
-            'id_user' => $request->user()->id,
+            'id_user' => $request->user()->id_user,
             'jumlah' => $data['jumlah'],
             'keterangan' => $data['keterangan'],
             'tanggal' => $data['tanggal'],
