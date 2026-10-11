@@ -302,14 +302,10 @@ class CustomerData
         foreach ($cart as $line) {
             $subtotal += self::lineTotal($line);
         }
-        $pb1 = (int) round($subtotal * 0.10);
-        $service = $subtotal > 0 ? 2000 : 0;
 
         return [
             'subtotal' => $subtotal,
-            'pb1' => $pb1,
-            'service' => $service,
-            'total' => $subtotal + $pb1 + $service,
+            'total' => $subtotal,
             'count' => array_sum(array_column($cart, 'qty')),
         ];
     }

@@ -55,7 +55,6 @@
     b.addEventListener('click', () => {
       const a = b.dataset.quickAction;
       if (a === 'open-drawer') toast('Cash drawer dibuka (kick).', 'green');
-      else if (a === 'split-bill') toast('Pilih tiket di Daftar Antrean untuk split bill.');
       else if (a === 'manual-order') toast('Pesanan manual: pilih tiket baru di Daftar Antrean.');
       else toast('Aksi dijalankan.');
     })
@@ -63,7 +62,6 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'F1') { e.preventDefault(); toast('Pesanan manual / takeaway (F1).'); }
     if (e.key === 'F2') { e.preventDefault(); toast('Cash drawer dibuka (F2).', 'green'); }
-    if (e.key === 'F3') { e.preventDefault(); toast('Split bill & cetak ulang (F3).'); }
   });
 
   /* ---------- Orders page ---------- */
@@ -153,8 +151,6 @@
       set('d-ago', t.ago);
       set('d-count', t.items_count ?? (t.items || []).length);
       set('d-subtotal', fmtRp(t.subtotal));
-      set('d-pb1', fmtRp(t.pb1));
-      set('d-service', fmtRp(t.service));
       set('d-total', fmtRp(t.total));
       const ul = $('#d-items');
       if (ul) {
@@ -232,11 +228,9 @@
     const total = Number(window.POS_PAYMENT_TOTAL || 0);
     if (!total && !$('#cash-received')) return;
     const methods = $$('.pay-method');
-    const panels = { cash: $('#panel-cash'), noncash: $('#panel-noncash'), split: $('#panel-split') };
+    const panels = { cash: $('#panel-cash'), noncash: $('#panel-noncash') };
     const titles = {
       qris: `Scan QRIS dinamis ${fmtRp(total)}`,
-      debit: `Gesek / tap EDC sebesar ${fmtRp(total)}`,
-      split: 'Split bill',
     };
     let current = 'cash';
 
@@ -249,11 +243,10 @@
           x.className = `pay-method flex flex-col items-center gap-1 rounded-xl border px-3 py-3 text-sm font-bold ${on ? 'border-pk-green bg-[#eef5ea] text-pk-green' : 'border-pk-brown/15 bg-white text-pk-brown hover:border-pk-green'}`;
         });
         if (panels.cash) panels.cash.classList.toggle('hidden', current !== 'cash');
-        if (panels.split) panels.split.classList.toggle('hidden', current !== 'split');
         if (panels.noncash) {
-          const showNc = current === 'qris' || current === 'debit';
+          const showNc = current === 'qris';
           panels.noncash.classList.toggle('hidden', !showNc);
-          if (showNc) $('#noncash-title').textContent = titles[current];
+          if (showNc) $('#noncash-title').textContent = titles.qris;
         }
       })
     );
@@ -296,8 +289,6 @@
           return;
         }
         toast(`Pembayaran ${fmtRp(total)} lunas. Kembalian ${fmtRp(got - total)}.`, 'green');
-      } else if (current === 'split') {
-        toast('Split bill dicatat. Selesaikan tiap bill di kasir.');
       } else {
         toast(`Menunggu konfirmasi ${current.toUpperCase()} ${fmtRp(total)}…`, 'amber');
       }

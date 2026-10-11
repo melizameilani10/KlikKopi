@@ -103,8 +103,6 @@
 
                 <dl class="mt-3 space-y-1.5 border-t border-pk-brown/10 pt-3 text-sm">
                     <div class="flex justify-between text-pk-brown-soft"><dt>Subtotal</dt><dd id="d-subtotal" class="font-semibold text-pk-brown">Rp {{ number_format($activeTicket['subtotal'], 0, ',', '.') }}</dd></div>
-                    <div class="flex justify-between text-pk-brown-soft"><dt>PB1</dt><dd id="d-pb1" class="font-semibold text-pk-brown">Rp {{ number_format($activeTicket['pb1'], 0, ',', '.') }}</dd></div>
-                    <div class="flex justify-between text-pk-brown-soft"><dt>Service</dt><dd id="d-service" class="font-semibold text-pk-brown">Rp {{ number_format($activeTicket['service'], 0, ',', '.') }}</dd></div>
                     <div class="flex justify-between border-t border-pk-brown/10 pt-2 font-heading text-lg font-semibold text-pk-brown"><dt>TOTAL</dt><dd id="d-total">Rp {{ number_format($activeTicket['total'], 0, ',', '.') }}</dd></div>
                 </dl>
 

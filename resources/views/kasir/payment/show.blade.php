@@ -32,7 +32,7 @@
                         <span class="font-bold text-pk-brown">Rp {{ number_format($it['price'] * $it['qty'], 0, ',', '.') }}</span>
                     </li>
                 @endforeach
-                <li class="flex justify-between pt-2 text-sm text-pk-brown-soft"><span>Subtotal + PB1 + Service</span><span class="font-semibold text-pk-brown">Rp {{ number_format($ticket['total'], 0, ',', '.') }}</span></li>
+                <li class="flex justify-between pt-2 text-sm text-pk-brown-soft"><span>Subtotal</span><span class="font-semibold text-pk-brown">Rp {{ number_format($ticket['subtotal'], 0, ',', '.') }}</span></li>
             </ul>
 
             <p class="mt-4 rounded-2xl bg-pk-brown p-4 text-center font-heading text-3xl font-semibold text-white" aria-live="polite">
@@ -40,7 +40,7 @@
             </p>
 
             <h2 class="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-pk-brown-soft">Metode Pembayaran</h2>
-            <div id="pay-methods" class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Metode pembayaran">
+            <div id="pay-methods" class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Metode pembayaran">
                 @foreach ($methods as $i => $m)
                     <button type="button" role="radio" aria-checked="{{ $i === 0 ? 'true' : 'false' }}" data-method="{{ $m['key'] }}"
                         class="pay-method flex flex-col items-center gap-1 rounded-xl border px-3 py-3 text-sm font-bold {{ $i === 0 ? 'border-pk-green bg-[#eef5ea] text-pk-green' : 'border-pk-brown/15 bg-white text-pk-brown hover:border-pk-green' }}">
@@ -84,18 +84,6 @@
                 <p class="text-xs text-pk-brown-soft">Kode berlaku 5 menit • BCA / GoPay / OVO / Dana</p>
             </div>
 
-            <div id="panel-split" class="pay-panel mt-4 hidden">
-                <div class="grid grid-cols-2 gap-2">
-                    <label class="rounded-xl bg-pk-sand-2 p-3 text-sm font-semibold text-pk-brown">Bill 1 — {{ $ticket['customer'] }}
-                        <span class="block font-heading text-lg">Rp {{ number_format(intdiv($ticket['total'], 2), 0, ',', '.') }}</span>
-                    </label>
-                    <label class="rounded-xl bg-pk-sand-2 p-3 text-sm font-semibold text-pk-brown">Bill 2 — Teman
-                        <span class="block font-heading text-lg">Rp {{ number_format($ticket['total'] - intdiv($ticket['total'], 2), 0, ',', '.') }}</span>
-                    </label>
-                </div>
-                <p class="mt-2 text-xs text-pk-brown-soft">Split rata 2 bill. Untuk split custom, gunakan tombol Split Bill di dashboard.</p>
-            </div>
-
             <x-pos.button id="btn-confirm-pay" variant="primary" icon="check" class="mt-4">Konfirmasi Pembayaran Rp {{ number_format($ticket['total'], 0, ',', '.') }}</x-pos.button>
             <p class="mt-2 text-center text-xs text-pk-brown-soft">Dengan konfirmasi, tiket dapur tercetak otomatis dan status menjadi Lunas.</p>
         </section>
@@ -118,9 +106,9 @@
                     @endforeach
                     <p class="my-2 border-t border-dashed border-pk-brown/30"></p>
                     <p class="flex justify-between"><span>Subtotal</span><span>{{ number_format($ticket['subtotal'], 0, ',', '.') }}</span></p>
-                    <p class="flex justify-between"><span>PB1</span><span>{{ number_format($ticket['pb1'], 0, ',', '.') }}</span></p>
-                    <p class="flex justify-between"><span>Service</span><span>{{ number_format($ticket['service'], 0, ',', '.') }}</span></p>
                     <p class="mt-1 flex justify-between font-bold"><span>TOTAL</span><span>Rp {{ number_format($ticket['total'], 0, ',', '.') }}</span></p>
+                    <p class="flex justify-between"><span>Dibayar</span><span>Rp {{ number_format($ticket['paid_amount'] ?? $ticket['total'], 0, ',', '.') }}</span></p>
+                    <p class="flex justify-between"><span>Kembalian</span><span>Rp {{ number_format(max(0, (int) ($ticket['change'] ?? 0)), 0, ',', '.') }}</span></p>
                     <p class="my-2 border-t border-dashed border-pk-brown/30"></p>
                     <p class="text-center text-xs">Terima kasih &amp; sampai jumpa!</p>
                     <p class="text-center text-xs">WiFi: PERKOCI • IG: @perkoci.eatery</p>

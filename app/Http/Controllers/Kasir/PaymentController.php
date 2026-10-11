@@ -34,8 +34,6 @@ class PaymentController extends Controller
             'methods' => [
                 ['key' => 'cash', 'label' => 'Cash', 'hint' => 'Tunai loket', 'icon' => 'banknote'],
                 ['key' => 'qris', 'label' => 'QRIS', 'hint' => 'Scan dinamis', 'icon' => 'qr'],
-                ['key' => 'debit', 'label' => 'Debit / EDC', 'hint' => 'Gesek / tap', 'icon' => 'card'],
-                ['key' => 'split', 'label' => 'Split Bill', 'hint' => 'Bagi tagihan', 'icon' => 'split'],
             ],
         ]);
     }

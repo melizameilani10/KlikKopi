@@ -75,7 +75,12 @@ class ManagerData
                 return [];
             }
 
-            return DB::table('metode_pembayaran')->orderBy('nama_metode')->pluck('nama_metode')->all();
+            // Hanya Cash & QRIS yang ditampilkan; baris lama (mis. Debit) tidak dihapus dari DB.
+            return DB::table('metode_pembayaran')
+                ->whereIn('nama_metode', ['Cash', 'QRIS'])
+                ->orderBy('nama_metode')
+                ->pluck('nama_metode')
+                ->all();
         } catch (\Throwable) {
             return [];
         }

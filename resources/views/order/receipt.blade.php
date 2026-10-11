@@ -30,13 +30,18 @@
                 @endforeach
             </ul>
 
-            <dl class="mt-3 space-y-1.5 border-t border-dashed border-pk-brown/25 pt-3 text-sm">
-                <div class="flex justify-between text-pk-brown-soft"><dt>Subtotal</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['subtotal'], 0, ',', '.') }}</dd></div>
-                <div class="flex justify-between text-pk-brown-soft"><dt>Service</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['service'], 0, ',', '.') }}</dd></div>
-                <div class="flex justify-between text-pk-brown-soft"><dt>PB1</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['pb1'], 0, ',', '.') }}</dd></div>
-                <div class="flex justify-between font-heading text-lg font-semibold text-pk-brown"><dt>Total Transaksi</dt><dd>Rp {{ number_format($order['totals']['total'], 0, ',', '.') }}</dd></div>
-                <div class="flex justify-between"><dt class="text-pk-brown-soft">Dibayar</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($order['totals']['total'], 0, ',', '.') }}</dd></div>
-            </dl>
+            @php
+    $total     = $order['totals']['total'];
+    $dibayar   = $order['totals']['paid'] ?? $total;           // uang yang diterima dari customer
+    $kembalian = max(0, (int) ($order['totals']['change'] ?? 0)); // kembalian (Rp 0 bila dibayar < total)
+@endphp
+
+<dl class="mt-3 space-y-1.5 border-t border-dashed border-pk-brown/25 pt-3 text-sm">
+    <div class="flex justify-between text-pk-brown-soft"><dt>Subtotal</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['subtotal'], 0, ',', '.') }}</dd></div>
+    <div class="flex justify-between font-heading text-lg font-semibold text-pk-brown"><dt>Total Transaksi</dt><dd>Rp {{ number_format($total, 0, ',', '.') }}</dd></div>
+    <div class="flex justify-between"><dt class="text-pk-brown-soft">Dibayar</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($dibayar, 0, ',', '.') }}</dd></div>
+    <div class="flex justify-between"><dt class="text-pk-brown-soft">Kembalian</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($kembalian, 0, ',', '.') }}</dd></div>
+</dl>
 
             @if ($order['paid'])
                 <p class="mt-3 rounded-xl bg-pk-mint p-3 text-center text-sm font-bold text-pk-green">Status Lunas</p>

@@ -14,11 +14,10 @@
         </button>
     </div>
 
-    <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
         <x-pos.stat-card title="Omzet Shift" :value="'Rp '.number_format($omzet, 0, ',', '.')" hint="Semua metode" icon="banknote" tone="green" />
         <x-pos.stat-card title="Cash" :value="'Rp '.number_format($recap['cash'], 0, ',', '.')" hint="Tunai loket" icon="banknote" tone="brown" />
         <x-pos.stat-card title="QRIS" :value="'Rp '.number_format($recap['qris'], 0, ',', '.')" hint="Scan dinamis" icon="qr" tone="khaki" />
-        <x-pos.stat-card title="Debit" :value="'Rp '.number_format($recap['debit'], 0, ',', '.')" hint="EDC" icon="card" tone="amber" />
     </div>
 
     <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -73,7 +72,6 @@
                 <dl class="mt-2 space-y-1.5 text-sm">
                     <div class="flex justify-between"><dt class="text-pk-brown-soft">Cash</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($recap['cash'], 0, ',', '.') }}</dd></div>
                     <div class="flex justify-between"><dt class="text-pk-brown-soft">QRIS</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($recap['qris'], 0, ',', '.') }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-pk-brown-soft">Debit</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($recap['debit'], 0, ',', '.') }}</dd></div>
                     <div class="flex justify-between border-t border-pk-brown/10 pt-2 font-heading text-base font-semibold text-pk-brown"><dt>Omzet</dt><dd>Rp {{ number_format($omzet, 0, ',', '.') }}</dd></div>
                 </dl>
             </section>

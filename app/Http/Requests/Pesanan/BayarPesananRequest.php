@@ -3,17 +3,19 @@
 namespace App\Http\Requests\Pesanan;
 
 use App\Http\Requests\ApiFormRequest;
+use Illuminate\Validation\Rule;
 
 class BayarPesananRequest extends ApiFormRequest
 {
     /**
      * Aturan validasi pembayaran.
+     * Hanya metode Cash & QRIS yang diterima.
      * Bukti opsional: hanya jpg/jpeg/png, maksimal 2048 KB.
      */
     public function rules(): array
     {
         return [
-            'id_metode'    => ['required', 'integer', 'exists:metode_pembayaran,id_metode'],
+            'id_metode'    => ['required', 'integer', Rule::exists('metode_pembayaran', 'id_metode')->whereIn('nama_metode', ['Cash', 'QRIS'])],
             'jumlah_bayar' => ['required', 'numeric', 'min:0'],
             'bukti'        => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];

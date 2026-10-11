@@ -40,8 +40,6 @@ class DashboardController extends Controller
             ],
             'quickActions' => [
                 ['title' => 'Pesanan Manual / Takeaway', 'description' => 'Walk-in customer atau kasir counter', 'icon' => 'cart-plus', 'shortcut' => 'F1', 'active' => true, 'action' => 'manual-order'],
-                ['title' => 'Buka Laci Uang (Open Drawer)', 'description' => 'Kick laci kas fisik untuk kembalian', 'icon' => 'register', 'shortcut' => 'F2', 'active' => false, 'action' => 'open-drawer'],
-                ['title' => 'Split Bill & Cetak Ulang Struk', 'description' => 'Manajemen struk dan invoice meja', 'icon' => 'list', 'shortcut' => 'F3', 'active' => false, 'action' => 'split-bill'],
             ],
             'featured' => ['name' => 'V60 Gayo Natural Anaerob', 'stock' => 'Sisa stok biji kopi: 18 porsi'],
         ]);
