@@ -314,8 +314,6 @@ class CustomerData
     {
         return [
             ['key' => 'qris', 'label' => 'QRIS', 'hint' => 'Scan sekali bayar', 'icon' => 'qr'],
-            ['key' => 'ewallet', 'label' => 'E-Wallet', 'hint' => 'GoPay / OVO / Dana', 'icon' => 'banknote'],
-            ['key' => 'debit', 'label' => 'Debit', 'hint' => 'Bayar di kasir / EDC', 'icon' => 'card'],
             ['key' => 'paylater', 'label' => 'Bayar Nanti', 'hint' => 'Bayar di kasir', 'icon' => 'clock'],
         ];
     }
