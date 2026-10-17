@@ -304,17 +304,28 @@ class CustomerData
         return array_sum(array_column(self::cart(), 'qty'));
     }
 
-    /** Harga 1 line = (harga produk + delta opsi) * qty */
-    public static function lineTotal(array $line): int
+    /** Harga satuan 1 item = harga produk + total delta opsi. */
+    public static function lineUnit(array $line): int
     {
         $unit = (int) ($line['base_price'] ?? 0);
         foreach ($line['options'] ?? [] as $opt) {
             $unit += (int) ($opt['delta'] ?? 0);
         }
 
-        return $unit * (int) ($line['qty'] ?? 1);
+        return $unit;
     }
 
+    /** Harga 1 line = harga satuan * qty */
+    public static function lineTotal(array $line): int
+    {
+        return self::lineUnit($line) * (int) ($line['qty'] ?? 1);
+    }
+
+    /**
+     * Ringkasan belanja. PB1 & biaya service dihapus dari alur self-order,
+     * jadi total = subtotal (harga satuan × qty tiap baris).
+     * Kunci pb1/service tetap ada bernilai 0 agar view lama tidak error.
+     */
     public static function totals(?array $cart = null): array
     {
         $cart ??= self::cart();
@@ -322,14 +333,12 @@ class CustomerData
         foreach ($cart as $line) {
             $subtotal += self::lineTotal($line);
         }
-        $pb1 = (int) round($subtotal * 0.10);
-        $service = $subtotal > 0 ? 2000 : 0;
 
         return [
             'subtotal' => $subtotal,
-            'pb1' => $pb1,
-            'service' => $service,
-            'total' => $subtotal + $pb1 + $service,
+            'pb1' => 0,
+            'service' => 0,
+            'total' => $subtotal,
             'count' => array_sum(array_column($cart, 'qty')),
         ];
     }

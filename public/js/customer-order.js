@@ -252,8 +252,6 @@
         if (qv) qv.textContent = qty;
         const lq = line.querySelector('[data-line-qty]');
         if (lq) lq.textContent = `${qty}×`;
-        const lt = line.querySelector('[data-line-total]');
-        if (lt) lt.textContent = fmtRp(data.lineTotal);
       }
       const nav = $('#nav-cart-badge');
       if (nav) { nav.textContent = data.cartCount; nav.style.display = data.cartCount > 0 ? '' : 'none'; }

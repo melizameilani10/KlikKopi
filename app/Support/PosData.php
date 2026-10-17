@@ -78,8 +78,9 @@ class PosData
                 }
 
                 $total = (float) $p->total_harga;
-                $service = $subtotal > 0 ? 2000 : 0;
-                $pb1 = max(0, $total - $subtotal - $service);
+                // PB1 & biaya service dihapus dari alur self-order; total = subtotal.
+                $service = 0;
+                $pb1 = 0;
                 $paid = ($p->status_pembayaran ?? '') === 'berhasil';
                 $status = $p->status_pesanan === 'diproses' || $paid ? 'cooking' : 'waiting_payment';
                 $waktu = \Carbon\Carbon::parse($p->tanggal_pesan);

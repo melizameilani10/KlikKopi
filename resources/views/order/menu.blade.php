@@ -111,56 +111,76 @@
                 id="menu-count"
                 class="text-xs font-medium text-pk-brown-soft"
             >
-                {{ count($products) }} Menu Tersedia
+                Memuat menu…
             </p>
 
         </div>
 
 
-        {{-- MENU LIST --}}
+        {{--
+            MENU LIST
+            Diisi dinamis oleh public/js/customer-menu.js dari GET /api/produk.
+            Kartu yang dirender memakai markup yang sama dengan
+            components/customer/menu-card.blade.php (class tidak diubah).
+        --}}
         <div
             id="menu-list"
             class="mt-3 grid grid-cols-2 gap-3"
+            data-api-url="{{ url('/api/produk') }}"
+            data-cart-add-url="{{ route('order.cart.add') }}"
         >
 
-            @forelse ($products as $p)
+            <div
+                id="menu-loading"
+                class="col-span-2 rounded-3xl bg-white p-8 text-center shadow-sm"
+            >
+                <p class="font-heading text-lg font-semibold text-pk-ink">
+                    Memuat menu…
+                </p>
+                <p class="mt-1 text-sm text-pk-brown-soft">
+                    Mengambil daftar menu terbaru dari Perkoci.
+                </p>
+            </div>
 
-                <x-customer.menu-card :product="$p" />
-
-            @empty
-
-                <div
-                    class="col-span-2 rounded-3xl bg-white p-8 text-center shadow-sm"
-                >
-
+            <noscript>
+                <div class="col-span-2 rounded-3xl bg-white p-8 text-center shadow-sm">
                     <p class="font-heading text-lg font-semibold text-pk-ink">
-                        Menu tidak ditemukan
+                        Menu belum tersedia
                     </p>
-
                     <p class="mt-1 text-sm text-pk-brown-soft">
-                        Coba kata kunci atau kategori lain.
+                        Aktifkan JavaScript untuk melihat daftar menu Perkoci.
                     </p>
-
                 </div>
-
-            @endforelse
+            </noscript>
 
         </div>
 
 
-        {{-- EMPTY STATE --}}
-        <p
+        {{-- EMPTY / ERROR STATE (satu wadah, teks diganti oleh JS) --}}
+        <div
             id="menu-empty"
             class="mt-3 hidden rounded-3xl bg-white p-8 text-center text-sm font-semibold text-pk-brown-soft shadow-sm"
         >
-            Tidak ada menu yang cocok.
-        </p>
+            <p id="menu-empty-text">Tidak ada menu yang cocok.</p>
+            <button
+                type="button"
+                id="menu-retry"
+                class="mt-3 hidden rounded-xl bg-pk-green px-4 py-2 text-xs font-bold text-white"
+            >
+                Muat Ulang Menu
+            </button>
+        </div>
 
     </div>
 
 
     {{-- CART --}}
     <x-customer.cart-bar :totals="$totals" />
+
+
+    @push('scripts')
+        <script src="{{ asset('js/customer-menu.js') }}" defer></script>
+    @endpush
 
 
     {{-- BOTTOM NAVIGATION --}}

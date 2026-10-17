@@ -78,6 +78,22 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Selalu hitung ulang totals dari item (harga satuan × qty) agar
+     * snapshot lama di session yang masih menyimpan PB1/service diabaikan.
+     */
+    private static function normalizeOrder(?array $order): ?array
+    {
+        if (! $order) {
+            return null;
+        }
+        if (isset($order['items']) && is_array($order['items'])) {
+            $order['totals'] = CustomerData::totals($order['items']);
+        }
+
+        return $order;
+    }
+
+    /**
      * Simpan order ke database. Return id_pesanan atau null bila
      * dilewati (mis. katalog dummy tanpa id produk DB / DB tak siap).
      */
@@ -214,7 +230,7 @@ class CheckoutController extends Controller
     {
         return view('order.status', [
             'table' => session('order.table', CustomerData::resolveTable()),
-            'order' => session('order.placed'),
+            'order' => self::normalizeOrder(session('order.placed')),
             'cartCount' => CustomerData::cartCount(),
             'activeNav' => 'status',
         ]);
@@ -222,7 +238,7 @@ class CheckoutController extends Controller
 
     public function receipt(): View
     {
-        $order = session('order.placed');
+        $order = self::normalizeOrder(session('order.placed'));
         abort_if(! $order, 404, 'Belum ada transaksi.');
 
         return view('order.receipt', [

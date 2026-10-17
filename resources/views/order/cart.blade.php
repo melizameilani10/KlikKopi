@@ -38,7 +38,7 @@
                                 @if (! empty($line['note']))
                                     <p class="truncate text-xs italic text-pk-brown-soft">“{{ $line['note'] }}”</p>
                                 @endif
-                                <p class="mt-1 text-sm font-bold text-pk-brown"><span data-line-qty>{{ $line['qty'] }}×</span> <span data-line-total>Rp {{ number_format(App\Support\CustomerData::lineTotal($line), 0, ',', '.') }}</span></p>
+                                <p class="mt-1 text-sm font-bold text-pk-brown"><span data-line-qty>{{ $line['qty'] }}×</span> <span data-line-unit>Rp {{ number_format(App\Support\CustomerData::lineUnit($line), 0, ',', '.') }}</span></p>
                             </div>
                             <button type="button" data-cart-remove="{{ $line['key'] }}" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-pk-danger" aria-label="Hapus item">
                                 <x-pos.icon name="trash" class="h-[18px] w-[18px]" />

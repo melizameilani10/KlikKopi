@@ -32,8 +32,6 @@
 
             <dl class="mt-3 space-y-1.5 border-t border-dashed border-pk-brown/25 pt-3 text-sm">
                 <div class="flex justify-between text-pk-brown-soft"><dt>Subtotal</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['subtotal'], 0, ',', '.') }}</dd></div>
-                <div class="flex justify-between text-pk-brown-soft"><dt>Service</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['service'], 0, ',', '.') }}</dd></div>
-                <div class="flex justify-between text-pk-brown-soft"><dt>PB1</dt><dd class="font-semibold text-pk-brown">Rp {{ number_format($order['totals']['pb1'], 0, ',', '.') }}</dd></div>
                 <div class="flex justify-between font-heading text-lg font-semibold text-pk-brown"><dt>Total Transaksi</dt><dd>Rp {{ number_format($order['totals']['total'], 0, ',', '.') }}</dd></div>
                 <div class="flex justify-between"><dt class="text-pk-brown-soft">Dibayar</dt><dd class="font-bold text-pk-brown">Rp {{ number_format($order['totals']['total'], 0, ',', '.') }}</dd></div>
             </dl>
