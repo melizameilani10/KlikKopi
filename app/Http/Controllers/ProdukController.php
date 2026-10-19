@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Produk;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProdukController extends Controller
@@ -64,6 +65,7 @@ class ProdukController extends Controller
             'kategori' => 'required|string|max:100',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status' => 'in:aktif,nonaktif',
         ]);
 
@@ -74,13 +76,19 @@ class ProdukController extends Controller
             ], 422);
         }
 
-        $produk = Produk::create([
+        $data = [
             'nama_produk' => $request->nama_produk,
             'kategori' => $request->kategori,
             'harga' => $request->harga,
             'deskripsi' => $request->deskripsi,
             'status' => $request->status ?? 'aktif',
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('produk', 'public');
+        }
+
+        $produk = Produk::create($data);
 
         return response()->json([
             'success' => true,
@@ -109,6 +117,7 @@ class ProdukController extends Controller
             'kategori' => 'sometimes|required|string|max:100',
             'harga' => 'sometimes|required|numeric|min:0',
             'deskripsi' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status' => 'in:aktif,nonaktif',
         ]);
 
@@ -119,9 +128,18 @@ class ProdukController extends Controller
             ], 422);
         }
 
-        $produk->update($request->only([
+        $data = $request->only([
             'nama_produk', 'kategori', 'harga', 'deskripsi', 'status',
-        ]));
+        ]);
+
+        if ($request->hasFile('foto')) {
+            if ($produk->foto) {
+                Storage::disk('public')->delete($produk->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('produk', 'public');
+        }
+
+        $produk->update($data);
 
         return response()->json([
             'success' => true,
@@ -143,6 +161,10 @@ class ProdukController extends Controller
                 'success' => false,
                 'message' => 'Produk tidak ditemukan',
             ], 404);
+        }
+
+        if ($produk->foto) {
+            Storage::disk('public')->delete($produk->foto);
         }
 
         $produk->delete();

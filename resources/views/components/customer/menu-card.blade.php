@@ -14,6 +14,10 @@
 
 <article class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm" data-menu-item data-product-id="{{ $product['id'] }}" data-name="{{ strtolower($product['name'].' '.($product['desc'] ?? '')) }}" data-category="{{ $product['category'] ?? '' }}">
     <div class="relative flex h-28 items-center justify-center {{ $tone }}" aria-hidden="true">
+        @if (! empty($product['image']))
+            <img src="{{ $product['image'] }}" alt="{{ $product['name'] ?? '' }}" loading="lazy"
+                class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()" />
+        @endif
         <span class="font-heading text-5xl font-semibold">{{ $initial }}</span>
         @if (! empty($product['rating']))
             <span class="absolute left-2 top-2 inline-flex items-center gap-0.5 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-bold text-pk-amber">

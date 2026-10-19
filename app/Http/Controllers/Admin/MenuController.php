@@ -8,6 +8,7 @@ use App\Support\AdminData;
 use App\Support\AuditTrail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class MenuController extends Controller
@@ -72,12 +73,14 @@ class MenuController extends Controller
             'harga' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:aktif,nonaktif'],
             'deskripsi' => ['nullable', 'string'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'stok_awal' => ['nullable', 'integer', 'min:0'],
             'min_stok' => ['nullable', 'integer', 'min:0'],
         ], [], [
             'nama_produk' => 'nama produk', 'kategori' => 'kategori',
             'harga' => 'harga jual', 'status' => 'status',
-            'deskripsi' => 'deskripsi', 'stok_awal' => 'stok awal', 'min_stok' => 'stok minimum',
+            'deskripsi' => 'deskripsi', 'foto' => 'foto produk',
+            'stok_awal' => 'stok awal', 'min_stok' => 'stok minimum',
         ]);
 
         $produk = Produk::create([
@@ -86,6 +89,9 @@ class MenuController extends Controller
             'harga' => $data['harga'],
             'status' => $data['status'],
             'deskripsi' => $data['deskripsi'] ?? null,
+            'foto' => $request->hasFile('foto')
+                ? $request->file('foto')->store('produk', 'public')
+                : null,
         ]);
 
         if (! is_null($data['stok_awal'] ?? null)) {
@@ -127,7 +133,17 @@ class MenuController extends Controller
             'harga' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:aktif,nonaktif'],
             'deskripsi' => ['nullable', 'string'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [], [
+            'foto' => 'foto produk',
         ]);
+
+        if ($request->hasFile('foto')) {
+            if ($product->foto) {
+                Storage::disk('public')->delete($product->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('produk', 'public');
+        }
 
         $oldPrice = (float) $product->harga;
         $product->update($data);
@@ -156,6 +172,9 @@ class MenuController extends Controller
     {
         $product = Produk::findOrFail($id);
         $name = $product->nama_produk;
+        if ($product->foto) {
+            Storage::disk('public')->delete($product->foto);
+        }
         $product->delete(); // stok ikut terhapus (FK cascade)
 
         AuditTrail::log('KATALOG_MENU', "Hapus menu {$name}", AdminData::sku($id));

@@ -31,6 +31,7 @@ class ProdukApiController extends Controller
             'kategori'    => $p->kategori,
             'harga'       => (float) $p->harga,
             'deskripsi'   => $p->deskripsi,
+            'foto_url'    => $p->foto_url,
             'status'      => $p->status,
             'jumlah_stok' => $p->stok?->jumlah_stok,
             'tersedia'    => $p->status === 'aktif' && ($p->stok === null || $p->stok->jumlah_stok > 0),

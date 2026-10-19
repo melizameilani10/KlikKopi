@@ -7,7 +7,11 @@
 
     <div class="px-4 pb-6 pt-4" data-product-page="{{ $product['id'] }}" data-base-price="{{ $product['price'] }}">
         <div class="overflow-hidden rounded-2xl border border-pk-brown/10 bg-white shadow-card">
-            <div class="flex h-36 items-center justify-center bg-pk-brown" aria-hidden="true">
+            <div class="relative flex h-36 items-center justify-center overflow-hidden bg-pk-brown" aria-hidden="true">
+                @if (! empty($product['image']))
+                    <img src="{{ $product['image'] }}" alt="" loading="lazy"
+                        class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()" />
+                @endif
                 <span class="font-heading text-7xl font-semibold text-pk-khaki">{{ strtoupper(mb_substr($product['name'], 0, 1)) }}</span>
             </div>
             <div class="p-4">

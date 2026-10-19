@@ -16,9 +16,19 @@ class MenuController extends Controller
         session(['order.table' => $table]);
 
         $products = CustomerData::products();
+        $categories = CustomerData::categories();
         $activeCategory = (string) $request->query('kategori', 'Semua');
         $search = trim((string) $request->query('q', ''));
 
+        // Kategori dari URL divalidasi dulu terhadap chip yang benar-benar ada.
+        // URL basi / kategori yang tidak dikenal TIDAK boleh menyisakan subset
+        // produk — kembalikan ke 'Semua' agar seluruh produk aktif tampil.
+        if (! in_array($activeCategory, $categories, true)) {
+            $activeCategory = 'Semua';
+        }
+
+        // Katalog utama = seluruh produk aktif (tanpa pembatas), baru difilter
+        // chip kategori / pencarian bila memang dipilih.
         $filtered = array_values(array_filter($products, function ($p) use ($activeCategory, $search) {
             if ($activeCategory !== 'Semua' && ($p['category'] ?? '') !== $activeCategory) {
                 return false;
@@ -34,7 +44,7 @@ class MenuController extends Controller
 
         return view('order.menu', [
             'table' => $table,
-            'categories' => CustomerData::categories(),
+            'categories' => $categories,
             'activeCategory' => $activeCategory,
             'search' => $search,
             'products' => $filtered,
