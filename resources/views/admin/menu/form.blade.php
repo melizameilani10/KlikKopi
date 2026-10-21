@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <form method="POST" action="{{ $mode === 'create' ? route('admin.menu.store') : route('admin.menu.update', $product->id_produk) }}" class="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <form method="POST" action="{{ $mode === 'create' ? route('admin.menu.store') : route('admin.menu.update', $product->id_produk) }}" enctype="multipart/form-data" class="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
         @csrf
         @if ($mode === 'edit')
             @method('PUT')
@@ -53,6 +53,32 @@
                 <label class="block text-sm font-semibold text-pk-brown sm:col-span-2">Deskripsi
                     <textarea name="deskripsi" rows="3" class="mt-1 w-full rounded-xl border border-pk-brown/15 bg-pk-paper px-3 py-2.5 text-sm outline-none focus:border-pk-green">{{ old('deskripsi', $product->deskripsi ?? '') }}</textarea>
                 </label>
+
+                <div class="sm:col-span-2">
+                    <span class="block text-sm font-semibold text-pk-brown">Foto Produk</span>
+                    @error('foto')
+                        <p class="mt-1 text-xs font-bold text-pk-danger">{{ $message }}</p>
+                    @enderror
+                    <div class="mt-1 flex flex-wrap items-start gap-3">
+                        <div class="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-pk-brown/15 bg-pk-sand">
+                            <img id="foto-current"
+                                src="{{ $product?->foto_url ?? '' }}"
+                                alt="Foto {{ $product?->nama_produk ?? 'produk' }}"
+                                data-original="{{ $product?->foto_url ?? '' }}"
+                                class="h-full w-full object-cover {{ $product && $product->foto ? '' : 'hidden' }}" />
+                            <span id="foto-empty" class="px-2 text-center text-[11px] font-semibold text-pk-brown-soft {{ $product && $product->foto ? 'hidden' : '' }}">Belum ada foto</span>
+                        </div>
+                        <div class="min-w-[220px] flex-1">
+                            <input type="file" id="foto-input" name="foto" accept="image/jpeg,image/png,image/webp"
+                                class="w-full rounded-xl border border-pk-brown/15 bg-pk-paper px-3 py-2 text-sm text-pk-brown file:mr-3 file:rounded-lg file:border-0 file:bg-pk-sand file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pk-brown" />
+                            <p class="mt-1 text-xs text-pk-brown-soft">JPG, PNG, atau WEBP — maksimal 2 MB.
+                                @if ($mode === 'edit')
+                                    Biarkan kosong untuk mempertahankan foto saat ini.
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 @if ($mode === 'create')
                     <label class="block text-sm font-semibold text-pk-brown">Stok Awal
                         <input type="number" name="stok_awal" min="0" value="{{ old('stok_awal', 0) }}"
@@ -107,4 +133,25 @@
             </button>
         </aside>
     </form>
+
+    <script>
+        (function () {
+            const input = document.getElementById('foto-input');
+            const img = document.getElementById('foto-current');
+            const empty = document.getElementById('foto-empty');
+            if (!input || !img) return;
+            const original = img.dataset.original || '';
+
+            input.addEventListener('change', function () {
+                const file = input.files && input.files[0];
+                if (!file) {
+                    img.src = original;
+                    return;
+                }
+                img.src = URL.createObjectURL(file);
+                img.classList.remove('hidden');
+                empty.classList.add('hidden');
+            });
+        })();
+    </script>
 @endsection

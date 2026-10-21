@@ -24,22 +24,27 @@ class CustomerData
     }
 
     /**
-     * Kategori dari database (produk aktif) agar chip filter selalu
-     * sesuai data asli. Fallback ke daftar desain bila DB kosong.
+     * Kategori chip di halaman katalog Customer.
+     *
+     * DB-first: diambil dari kategori produk BERSTATUS AKTIF supaya selalu
+     * sinkron dengan Admin > Kelola Menu (AdminData::categories() juga DB-first).
+     * 'Semua' selalu di posisi pertama. Fallback ke daftar statis bila tabel
+     * kosong/tidak ada.
      */
     public static function categories(): array
     {
         try {
             if (Schema::hasTable('produk')) {
-                $cats = Produk::query()
-                    ->where('status', 'aktif')
+                $cats = Produk::where('status', 'aktif')
                     ->whereNotNull('kategori')
+                    ->where('kategori', '!=', '')
                     ->distinct()
                     ->orderBy('kategori')
                     ->pluck('kategori')
                     ->all();
+
                 if (! empty($cats)) {
-                    return array_merge(['Semua'], $cats);
+                    return array_values(array_merge(['Semua'], $cats));
                 }
             }
         } catch (\Throwable) {
@@ -126,6 +131,7 @@ class CustomerData
                 'db_id' => $p->id_produk,
                 'name' => $p->nama_produk,
                 'desc' => $p->deskripsi ?: $p->nama_produk,
+                'image' => $p->foto_url,
                 'price' => (int) $p->harga,
                 'category' => $p->kategori ?: 'Signature Coffee',
                 'tags' => [],
@@ -336,8 +342,6 @@ class CustomerData
 
         return [
             'subtotal' => $subtotal,
-            'pb1' => 0,
-            'service' => 0,
             'total' => $subtotal,
             'count' => array_sum(array_column($cart, 'qty')),
         ];
@@ -347,8 +351,6 @@ class CustomerData
     {
         return [
             ['key' => 'qris', 'label' => 'QRIS', 'hint' => 'Scan sekali bayar', 'icon' => 'qr'],
-            ['key' => 'ewallet', 'label' => 'E-Wallet', 'hint' => 'GoPay / OVO / Dana', 'icon' => 'banknote'],
-            ['key' => 'debit', 'label' => 'Debit', 'hint' => 'Bayar di kasir / EDC', 'icon' => 'card'],
             ['key' => 'paylater', 'label' => 'Bayar Nanti', 'hint' => 'Bayar di kasir', 'icon' => 'clock'],
         ];
     }

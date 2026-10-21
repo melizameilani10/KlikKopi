@@ -73,7 +73,11 @@
                             <tr class="align-middle">
                                 <td class="py-2.5 pr-3">
                                     <div class="flex items-center gap-2.5">
-                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-pk-sand font-heading text-base font-semibold text-pk-brown">
+                                        <span class="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-pk-sand font-heading text-base font-semibold text-pk-brown">
+                                            @if ($m->foto)
+                                                <img src="{{ $m->foto_url }}" alt="{{ $m->nama_produk }}" loading="lazy"
+                                                    class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()" />
+                                            @endif
                                             {{ strtoupper(mb_substr($m->nama_produk, 0, 1)) }}
                                         </span>
                                         <span>

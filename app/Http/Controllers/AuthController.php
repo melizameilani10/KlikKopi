@@ -3,85 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
-/**
- * API core authentication (Sanctum token).
- *
- * POST /api/login  — login via email ATAU username + password.
- * POST /api/logout — revoke token berjalan (auth:sanctum).
- *
- * Aturan role sama dengan login web: hanya role yang terdaftar
- * di config perkoci.roles (admin, kasir, manager).
- */
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    /**
+     * POST /api/login
+     * Login memakai username ATAU email, lalu mengeluarkan token Sanctum.
+     */
+    public function login(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'login' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'string'],
-        ], [
-            'login.required' => 'ID pengguna atau email wajib diisi.',
-            'password.required' => 'Kata sandi wajib diisi.',
+        $credentials = $request->validate([
+            'login'       => ['required', 'string', 'max:255'],
+            'password'    => ['required', 'string'],
+            'device_name' => ['nullable', 'string', 'max:255'],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $login = Str::lower(trim((string) $request->input('login')));
+        $login = trim($credentials['login']);
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $user = User::where($field, $login)->first();
 
-        if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ID pengguna/email atau kata sandi tidak sesuai.',
-            ], 401);
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'auth' => 'ID pengguna/email atau kata sandi tidak sesuai.',
+            ]);
         }
 
-        $role = strtolower((string) $user->role);
-        if (! array_key_exists($role, config('perkoci.roles'))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akun ini belum memiliki peran yang valid. Hubungi administrator.',
-            ], 403);
-        }
-
-        $token = $user->createToken('api')->plainTextToken;
+        $token = $user->createToken($credentials['device_name'] ?? 'api-token')->plainTextToken;
 
         return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil.',
-            'data' => [
-                'token' => $token,
-                'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'role' => $role,
-                ],
+            'success'    => true,
+            'message'    => 'Login berhasil.',
+            'token_type' => 'Bearer',
+            'token'      => $token,
+            'data'       => [
+                'id'       => $user->id_user,
+                'name'     => $user->name,
+                'username' => $user->username,
+                'email'    => $user->email,
+                'role'     => $user->role,
             ],
         ]);
     }
 
-    public function logout(Request $request)
+    /**
+     * POST /api/logout
+     * Hapus token API yang sedang dipakai.
+     */
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Berhasil keluar. Token dicabut.',
+            'message' => 'Logout berhasil.',
+        ]);
+    }
+
+    /**
+     * GET /api/me
+     * Tampilkan data pengguna yang sedang login via token.
+     */
+    public function me(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data'    => $request->user(),
         ]);
     }
 }

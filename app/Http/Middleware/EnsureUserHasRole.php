@@ -8,9 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserHasRole
 {
-    /**
-     * Pemakaian di route: ->middleware('role:admin') atau 'role:admin,manager'
-     */
+    
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         // Belum login (mis. sesi kedaluwarsa): arahkan ke login, bukan 403.

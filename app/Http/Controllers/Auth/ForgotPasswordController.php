@@ -4,16 +4,33 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\View\View;
 
 class ForgotPasswordController extends Controller
 {
     /**
-     * Placeholder: the real reset flow comes in a later iteration.
+     * Tampilkan form permintaan tautan reset kata sandi.
      */
-    public function __invoke(): RedirectResponse
+    public function showLinkRequestForm(): View
     {
-        return redirect()
-            ->route('login')
-            ->with('info', 'Fitur reset kata sandi akan tersedia pada tahap berikutnya. Silakan hubungi administrator sistem untuk bantuan.');
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Kirim tautan reset kata sandi ke email pengguna.
+     */
+    public function sendResetLinkEmail(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('success', __($status))
+            : back()->withInput($request->only('email'))->withErrors(['email' => __($status)]);
     }
 }

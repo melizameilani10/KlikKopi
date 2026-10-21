@@ -17,4 +17,10 @@ class Meja extends Model
         'qr_code',
         'status',
     ];
+
+    /** Pesanan yang terkait meja ini. */
+    public function pesanan()
+    {
+        return $this->hasMany(Pesanan::class, 'id_meja', 'id_meja');
+    }
 }

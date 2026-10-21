@@ -14,6 +14,8 @@ class AdminUserSeeder extends Seeder
             ['email' => 'admin.sitirahma@perkoci.id'],
             [
                 'name'     => 'Siti Rahma',
+                'username' => 'admin.sitirahma',
+                'role'     => 'admin',
                 'password' => 'Perkoci#2026',
             ],
         );

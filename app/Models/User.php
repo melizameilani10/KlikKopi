@@ -12,6 +12,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    // PK tabel users di skema KlikKopi bernama id_user (bukan id bawaan Laravel).
+    protected $primaryKey = 'id_user';
+
     protected $fillable = [
         'name',
         'username',

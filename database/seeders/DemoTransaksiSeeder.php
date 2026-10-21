@@ -31,7 +31,7 @@ class DemoTransaksiSeeder extends Seeder
             return;
         }
 
-        foreach (['QRIS', 'Cash', 'Debit'] as $m) {
+        foreach (['QRIS', 'Cash'] as $m) {
             DB::table('metode_pembayaran')->updateOrInsert(['nama_metode' => $m], ['created_at' => now(), 'updated_at' => now()]);
         }
         $metodeIds = DB::table('metode_pembayaran')->pluck('id_metode', 'nama_metode')->all();
@@ -39,7 +39,7 @@ class DemoTransaksiSeeder extends Seeder
         $samples = [
             ['Cash', 68000, 'Penjualan loket'],
             ['QRIS', 92000, 'Penjualan QRIS'],
-            ['Debit', 54000, 'Penjualan EDC'],
+            ['QRIS', 54000, 'Penjualan QRIS'],
             ['QRIS', 47000, 'Penjualan QRIS'],
         ];
 

@@ -39,6 +39,13 @@
       if (!m) return;
       const body = $('#view-menu-body');
       body.innerHTML = '';
+      if (m.foto_url) {
+        const img = document.createElement('img');
+        img.src = m.foto_url;
+        img.alt = m.nama_produk;
+        img.className = 'mb-2 h-36 w-full rounded-xl object-cover';
+        body.appendChild(img);
+      }
       [
         ['Nama', m.nama_produk],
         ['Kategori', m.kategori],

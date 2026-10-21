@@ -100,13 +100,17 @@
         </div>
 
 
-        {{-- MENU HEADER --}}
+        {{-- MENU HEADER — katalog penuh, tanpa pembatas jumlah item --}}
         <div class="mt-7 flex items-center justify-between">
 
             <h2 class="font-heading text-xl font-semibold text-pk-ink">
-                Pilihan Terbaik
+                Semua Menu
             </h2>
 
+            {{--
+                Label jumlah dihitung langsung dari jumlah kartu yang dirender,
+                lalu diperbarui lagi oleh JS sesuai hasil filter chip/search.
+            --}}
             <p
                 id="menu-count"
                 class="text-xs font-medium text-pk-brown-soft"

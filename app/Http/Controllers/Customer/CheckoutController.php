@@ -53,6 +53,9 @@ class CheckoutController extends Controller
         ]);
 
         $totals = CustomerData::totals($cart);
+        // Cadangan bila belum ada pembayaran tercatat: dibayar = total, kembalian = 0.
+        $totals['paid'] = $totals['total'];
+        $totals['change'] = 0;
         $table = session('order.table', CustomerData::resolveTable());
         $now = now();
 

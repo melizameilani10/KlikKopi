@@ -20,6 +20,7 @@ use App\Http\Controllers\Customer\WelcomeController as OrderWelcomeController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\KasirLoginController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,12 +28,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 
-    // Placeholder sampai fitur reset kata sandi dibuat.
-    Route::get('/forgot-password', ForgotPasswordController::class)->name('password.request');
+    
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
-    // Terminal login Kasir (PIN + shift).
-    Route::get('/kasir/login', [KasirLoginController::class, 'create'])->name('kasir.login');
-    Route::post('/kasir/login', [KasirLoginController::class, 'store'])->name('kasir.login.store');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {

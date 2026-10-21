@@ -27,7 +27,7 @@
         <x-pos.stat-card title="Menunggu" :value="$stats['waiting']" hint="Perlu tindakan kasir" icon="clock" tone="amber" />
         <x-pos.stat-card title="Sedang Diproses" :value="$stats['cooking']" hint="5 Minuman • 4 Makanan" icon="pot" tone="khaki" />
         <x-pos.stat-card title="Selesai" :value="$stats['done']" hint="Hari ini" icon="check-double" tone="green" />
-        <x-pos.stat-card title="Omzet" :value="$stats['revenue_label']" hint="Tunai + QRIS + Debit" icon="banknote" tone="green" class="col-span-2 md:col-span-1" />
+        <x-pos.stat-card title="Omzet" :value="$stats['revenue_label']" hint="Tunai + QRIS" icon="banknote" tone="green" class="col-span-2 md:col-span-1" />
     </div>
 
     {{-- Status shift --}}
