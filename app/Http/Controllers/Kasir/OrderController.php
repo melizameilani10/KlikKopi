@@ -14,7 +14,7 @@ class OrderController extends Controller
     {
         $user = $request->user();
         $tickets = PosData::tickets();
-        $activeCode = strtoupper(ltrim((string) $request->query('ticket', 'A-24'), '#'));
+        $activeCode = strtoupper(ltrim((string) $request->query('ticket', $tickets[0]['code'] ?? 'A-24'), '#'));
         $active = PosData::findTicket($activeCode) ?? $tickets[0];
 
         return view('kasir.orders.index', [

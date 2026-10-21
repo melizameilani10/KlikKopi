@@ -12,10 +12,18 @@
             <h1 class="font-heading text-[28px] font-semibold leading-tight text-pk-brown">Ringkasan Penjualan</h1>
             <p class="mt-1 text-sm text-pk-brown-soft">Periode: {{ $periode }} • Selamat bekerja, {{ $manager['name'] }}</p>
         </div>
-        <a href="{{ route('manager.sales.index') }}" class="inline-flex items-center gap-2 rounded-xl bg-pk-brown px-4 py-2 text-sm font-bold text-white">
-            Laporan Penjualan
-            <x-pos.icon name="chevron-right" class="h-4 w-4" />
-        </a>
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="inline-flex rounded-xl border border-pk-brown/15 bg-white p-1 text-sm font-bold" role="group" aria-label="Filter periode">
+                @foreach (['harian' => 'Hari Ini', 'mingguan' => 'Minggu Ini', 'bulanan' => 'Bulan Ini'] as $key => $label)
+                    <a href="{{ route('manager.dashboard', ['periode' => $key]) }}"
+                       @class(['rounded-lg px-3 py-1.5', 'bg-pk-brown text-white' => ($mode ?? 'bulanan') === $key, 'text-pk-brown' => ($mode ?? 'bulanan') !== $key])>{{ $label }}</a>
+                @endforeach
+            </div>
+            <a href="{{ route('manager.sales.index') }}" class="inline-flex items-center gap-2 rounded-xl bg-pk-brown px-4 py-2 text-sm font-bold text-white">
+                Laporan Penjualan
+                <x-pos.icon name="chevron-right" class="h-4 w-4" />
+            </a>
+        </div>
     </div>
 
     <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

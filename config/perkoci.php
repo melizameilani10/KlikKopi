@@ -24,6 +24,26 @@ return [
         ],
     ],
 
+    // Konfigurasi terminal login Kasir (PIN + shift).
+    // Dipakai: kasir/login.blade.php, KasirLoginRequest, KasirLoginController.
+    'kasir' => [
+        'title' => 'Terminal Kasir Perkoci',
+        'brand' => 'PERKOCI EATERY',
+        'tagline' => 'Satu terminal untuk seluruh shift kasir.',
+        'terminal' => 'Kasir 01 • Counter Utama',
+        'status' => 'Online',
+        'description' => 'Pilih shift kerja, masukkan ID kasir dan PIN 6 digit untuk membuka shift.',
+        'default_shift' => 'pagi',
+        'shifts' => [
+            'pagi' => ['label' => 'Pagi', 'time' => '07:00–15:00', 'icon' => 'sun'],
+            'siang' => ['label' => 'Siang', 'time' => '15:00–21:00', 'icon' => 'clock'],
+            'malam' => ['label' => 'Malam', 'time' => '21:00–23:00', 'icon' => 'moon'],
+        ],
+        'submit_label' => 'Buka Shift & Masuk',
+        'version' => 'v2.4.0',
+        'help_contact' => 'Supervisor (ext. 101)',
+    ],
+
     // Daftar role yang boleh masuk. 'route' = dashboard tujuan setelah login.
     'roles' => [
         'admin' => [

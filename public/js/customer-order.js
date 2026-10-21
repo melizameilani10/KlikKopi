@@ -252,8 +252,6 @@
         if (qv) qv.textContent = qty;
         const lq = line.querySelector('[data-line-qty]');
         if (lq) lq.textContent = `${qty}×`;
-        const lt = line.querySelector('[data-line-total]');
-        if (lt) lt.textContent = fmtRp(data.lineTotal);
       }
       const nav = $('#nav-cart-badge');
       if (nav) { nav.textContent = data.cartCount; nav.style.display = data.cartCount > 0 ? '' : 'none'; }
@@ -288,7 +286,11 @@
   })();
 
   /* ---------- E-Receipt ---------- */
-  $('#btn-receipt-print')?.addEventListener('click', () => window.print());
+  $('#btn-receipt-print')?.addEventListener('click', () => {
+    document.body.classList.add('printing-receipt');
+    window.print();
+  });
+  window.addEventListener('afterprint', () => document.body.classList.remove('printing-receipt'));
   $('#btn-receipt-wa')?.addEventListener('click', (e) => {
     const code = e.currentTarget.dataset.code || '';
     const text = encodeURIComponent(`Halo PERKOCI EATERY, berikut e-receipt saya ${code}. Terima kasih!`);

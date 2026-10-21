@@ -35,6 +35,11 @@ class RoleUserSeeder extends Seeder
                 $attributes['role'] = $account['role'];
             }
 
+            // PIN terminal kasir (default 123456) agar login shift bisa dipakai.
+            if (($account['role'] ?? '') === 'kasir' && Schema::hasColumn('users', 'pin')) {
+                $attributes['pin'] = Hash::make('123456');
+            }
+
             // forceFill: tidak bergantung pada $fillable di model User.
             User::firstOrNew(['email' => $account['email']])
                 ->forceFill($attributes)
